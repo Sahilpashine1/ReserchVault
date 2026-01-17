@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Faculty Publications Management System - Manage and analyze your research publications">
+  <title>Login | Faculty Publications Management</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Login Form -->
+      <div id="loginForm" class="auth-form">
+        <div class="login-header">
+          <h1>📚 Faculty Publications</h1>
+          <p>Management & Query System</p>
+        </div>
+
+        <div id="loginAlert"></div>
+
+        <form id="loginFormElement">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email Address</label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="your.email@university.edu" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <div style="position: relative;">
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password"
+                style="padding-right: 3rem;" required>
+              <span id="toggleLoginPassword" onclick="toggleLoginPasswordVisibility()"
+                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span id="loginButtonText">Sign In</span>
+            <span id="loginSpinner" class="spinner hidden"></span>
+          </button>
+        </form>
+
+        <div class="auth-toggle">
+          Don't have an account?
+          <a href="#" id="showRegister">Create one now</a>
+        </div>
+
+        <div class="auth-toggle" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+          <small style="color: #666;">
+            🔐 Administrator?
+            <a href="admin-login.html" style="color: #667eea; font-weight: 600;">Admin Login</a>
+          </small>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" class="auth-form hidden">
+        <div class="login-header">
+          <h1>📚 Create Account</h1>
+          <p>Join the Publications Management System</p>
+        </div>
+
+        <div id="registerAlert"></div>
+
+        <form id="registerFormElement">
+          <div class="form-group">
+            <label class="form-label" for="registerName">Full Name</label>
+            <input type="text" id="registerName" class="form-input" placeholder="Dr. John Smith" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="registerEmail">Email Address</label>
+            <input type="email" id="registerEmail" class="form-input" placeholder="your.email@university.edu" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="registerDepartment">Department (Optional)</label>
+            <input type="text" id="registerDepartment" class="form-input" placeholder="Computer Science">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="registerPassword">Password</label>
+            <div style="position: relative;">
+              <input type="password" id="registerPassword" class="form-input" placeholder="Create a strong password"
+                style="padding-right: 3rem;" required minlength="6">
+              <span id="toggleRegisterPassword" onclick="toggleRegisterPasswordVisibility()"
+                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span id="registerButtonText">Create Account</span>
+            <span id="registerSpinner" class="spinner hidden"></span>
+          </button>
+        </form>
+
+        <div class="auth-toggle">
+          Already have an account?
+          <a href="#" id="showLogin">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password visibility toggles
+    function toggleLoginPasswordVisibility() {
+      const passwordInput = document.getElementById('loginPassword');
+      const toggleIcon = document.getElementById('toggleLoginPassword');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+      }
+    }
+
+    function toggleRegisterPasswordVisibility() {
+      const passwordInput = document.getElementById('registerPassword');
+      const toggleIcon = document.getElementById('toggleRegisterPassword');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+      }
+    }
+
+    // Add smooth animations on input focus
+    document.querySelectorAll('.form-input').forEach(input => {
+      input.addEventListener('focus', function () {
+        this.style.transform = 'translateY(-2px)';
+        this.style.transition = 'all 0.3s ease';
+      });
+
+      input.addEventListener('blur', function () {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn-primary').forEach(button => {
+      button.addEventListener('click', function (e) {
+        const ripple = document.createElement('span');
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+        ripple.style.width = ripple.style.height = '100px';
+        ripple.style.left = e.clientX - this.offsetLeft - 50 + 'px';
+        ripple.style.top = e.clientY - this.offsetTop - 50 + 'px';
+        ripple.style.animation = 'ripple 0.6s';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+
+</html>

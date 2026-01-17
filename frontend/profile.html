@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Faculty Publications</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-picture-section {
+            position: relative;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-blue);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.1);
+            background: #1d4ed8;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-role {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .profile-form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .delete-photo-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .delete-photo-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <h2>📚 Publications</h2>
+                <p>Management System</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="home.html" class="nav-link">
+                            <span>🏠</span>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <span>📊</span>
+                            <span>Publications</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link active">
+                            <span>👤</span>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="adminMenuItem" style="display: none;">
+                        <a href="admin.html" class="nav-link">
+                            <span>🔐</span>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="sidebarAvatar">U</div>
+                    <div class="user-details">
+                        <h4 id="userName">User Name</h4>
+                        <p id="userEmail">user@email.com</p>
+                    </div>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn" style="width: 100%; padding: 0.6rem;">
+                    🚪 Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="profile-container">
+                <header class="page-header" style="display: block;">
+                    <h1 class="page-title">My Profile</h1>
+                    <p class="page-subtitle">Manage your personal information and settings</p>
+                </header>
+
+                <div id="alertArea"></div>
+
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-picture-section">
+                        <div class="profile-picture" id="profilePicture">
+                            <span id="profileInitial">U</span>
+                        </div>
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('photoInput').click()">📷</button>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name" id="profileName">User Name</h2>
+                        <p class="profile-email" id="profileEmail">user@email.com</p>
+                        <span class="profile-role" id="profileRole">Faculty User</span>
+                        <button class="delete-photo-btn" id="deletePhotoBtn" style="display: none;">🗑️ Remove
+                            Photo</button>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="profile-form-section">
+                    <h2 class="section-title">Personal Information</h2>
+                    <form id="profileForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-input" id="nameInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" id="emailInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Department</label>
+                                <input type="text" class="form-input" id="departmentInput">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-input" id="phoneInput">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-input" id="bioInput" rows="4"
+                                placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                            <button type="button" class="btn btn-secondary" onclick="loadProfile()">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <span id="saveButtonText">💾 Save Changes</span>
+                                <span id="saveSpinner" class="spinner hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="profile-form-section" style="margin-top: 2rem;">
+                    <h2 class="section-title">🔒 Security Settings</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Change your password to keep your
+                        account secure</p>
+                    <form id="passwordForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Current Password *</label>
+                                <input type="password" class="form-input" id="currentPasswordInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password *</label>
+                                <input type="password" class="form-input" id="newPasswordInput" required minlength="6">
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                    Minimum 6 characters
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password *</label>
+                                <input type="password" class="form-input" id="confirmPasswordInput" required
+                                    minlength="6">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="document.getElementById('passwordForm').reset()">Clear</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span id="changePasswordButtonText">🔑 Change Password</span>
+                                <span id="changePasswordSpinner" class="spinner hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = 'index.html';
+
+        let currentProfile = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+
+            // Show admin menu if needed
+            if (user.role === 'super_admin') {
+                document.getElementById('adminMenuItem').style.display = 'block';
+            }
+
+            document.getElementById('profileForm').addEventListener('submit', saveProfile);
+            document.getElementById('passwordForm').addEventListener('submit', changePassword);
+            document.getElementById('photoInput').addEventListener('change', uploadPhoto);
+            document.getElementById('deletePhotoBtn').addEventListener('click', deletePhoto);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        });
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_URL}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load profile');
+
+                const result = await response.json();
+                currentProfile = result.data;
+
+                // Update form
+                document.getElementById('nameInput').value = currentProfile.name || '';
+                document.getElementById('emailInput').value = currentProfile.email || '';
+                document.getElementById('departmentInput').value = currentProfile.department || '';
+                document.getElementById('phoneInput').value = currentProfile.phone || '';
+                document.getElementById('bioInput').value = currentProfile.bio || '';
+
+                // Update profile header
+                document.getElementById('profileName').textContent = currentProfile.name;
+                document.getElementById('profileEmail').textContent = currentProfile.email;
+                document.getElementById('profileRole').textContent = getRoleDisplayName(currentProfile.role);
+
+                // Update profile picture
+                updateProfilePicture(currentProfile.profilePicture);
+
+                // Update sidebar
+                document.getElementById('userName').textContent = currentProfile.name;
+                document.getElementById('userEmail').textContent = currentProfile.email;
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showAlert('Failed to load profile', 'error');
+            }
+        }
+
+        function updateProfilePicture(pictureUrl) {
+            const profilePic = document.getElementById('profilePicture');
+            const sidebarAvatar = document.getElementById('sidebarAvatar');
+            const deleteBtn = document.getElementById('deletePhotoBtn');
+            const initial = currentProfile.name?.charAt(0).toUpperCase() || 'U';
+
+            if (pictureUrl) {
+                profilePic.innerHTML = `<img src="${pictureUrl}" alt="Profile">`;
+                sidebarAvatar.innerHTML = `<img src="${pictureUrl}" alt="Profile" 
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                deleteBtn.style.display = 'inline-block';
+            } else {
+                document.getElementById('profileInitial').textContent = initial;
+                sidebarAvatar.textContent = initial;
+                deleteBtn.style.display = 'none';
+            }
+        }
+
+        async function uploadPhoto(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('File size must be less than 5MB', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profilePicture', file);
+
+            try {
+                const response = await fetch(`${API_URL}/profile/picture`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+                updateProfilePicture(result.data.profilePicture);
+                currentProfile.profilePicture = result.data.profilePicture;
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('Failed to upload photo', 'error');
+            }
+
+            e.target.value = ''; // Reset input
+        }
+
+        async function deletePhoto() {
+            if (!confirm('Are you sure you want to remove your profile picture?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/profile/picture`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Delete failed');
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+                updateProfilePicture(null);
+                currentProfile.profilePicture = '';
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showAlert('Failed to delete photo', 'error');
+            }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+
+            const buttonText = document.getElementById('saveButtonText');
+            const spinner = document.getElementById('saveSpinner');
+
+            buttonText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            try {
+                const profileData = {
+                    name: document.getElementById('nameInput').value,
+                    email: document.getElementById('emailInput').value,
+                    department: document.getElementById('departmentInput').value,
+                    phone: document.getElementById('phoneInput').value,
+                    bio: document.getElementById('bioInput').value
+                };
+
+                const response = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+
+                if (!response.ok) throw new Error('Update failed');
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+
+                // Update local storage
+                user.name = result.data.name;
+                user.email = result.data.email;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                await loadProfile();
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showAlert(error.message || 'Failed to update profile', 'error');
+            } finally {
+                buttonText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function changePassword(e) {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPasswordInput').value;
+            const newPassword = document.getElementById('newPasswordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+            // Validate passwords match
+            if (newPassword !== confirmPassword) {
+                showAlert('New passwords do not match', 'error');
+                return;
+            }
+
+            // Validate password length
+            if (newPassword.length < 6) {
+                showAlert('Password must be at least 6 characters long', 'error');
+                return;
+            }
+
+            const buttonText = document.getElementById('changePasswordButtonText');
+            const spinner = document.getElementById('changePasswordSpinner');
+
+            buttonText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/profile/password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to change password');
+                }
+
+                showAlert(result.message || 'Password changed successfully', 'success');
+                document.getElementById('passwordForm').reset();
+
+            } catch (error) {
+                console.error('Change password error:', error);
+                showAlert(error.message || 'Failed to change password', 'error');
+            } finally {
+                buttonText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                'user': 'Faculty User',
+                'super_admin': 'Super Administrator'
+            };
+            return roleNames[role] || role;
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertArea = document.getElementById('alertArea');
+            const alertClass = type === 'success' ? 'alert-success' :
+                type === 'error' ? 'alert-error' : 'alert-info';
+
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass}`;
+            alert.textContent = message;
+
+            alertArea.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 4000);
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Faculty Publications Dashboard - Manage your research publications">
+    <title>Dashboard | Faculty Publications Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/floating-chatbot.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <h2>📚 Publications</h2>
+                <p>Management System</p>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="home.html" class="nav-link">
+                            <span>🏠</span>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link active">
+                            <span>📊</span>
+                            <span>Publications</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span>👤</span>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="adminMenuItem" style="display: none;">
+                        <a href="admin.html" class="nav-link">
+                            <span>🔐</span>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <h4 id="userName">User Name</h4>
+                        <p id="userEmail">user@email.com</p>
+                    </div>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn" style="width: 100%; padding: 0.6rem;">
+                    🚪 Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Publications</h1>
+                    <p class="page-subtitle">Manage and analyze research output</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="uploadBtn">
+                        📤 Upload Excel/CSV
+                    </button>
+                    <button class="btn btn-success" id="addPublicationBtn">
+                        ➕ Add Publication
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tabs -->
+            <div
+                style="background: white; border-radius: 15px; padding: 0.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: inline-flex; gap: 0.5rem;">
+                <button class="tab-btn active" id="myPublicationsTab" onclick="switchTab('my')">
+                    👤 My Publications (<span id="myCount">0</span>)
+                </button>
+                <button class="tab-btn" id="allPublicationsTab" onclick="switchTab('all')">
+                    📚 All Publications (<span id="allCount">0</span>)
+                </button>
+            </div>
+
+            <!-- Alert Area -->
+            <div id="alertArea"></div>
+
+            <!-- Publications Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 class="section-title" style="margin-bottom: 0;">
+                        Publications List (<span id="pubCount">0</span>)
+                    </h2>
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="searchInput"
+                                placeholder="Search publications...">
+                        </div>
+                        <select class="form-input" id="sortSelect" style="width: auto;">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="year-desc">Year (High to Low)</option>
+                            <option value="year-asc">Year (Low to High)</option>
+                            <option value="title">Title (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="publications-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Authors</th>
+                                <th>Year</th>
+                                <th>Journal/Conference</th>
+                                <th>Keywords</th>
+                                <th>Link</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="publicationsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted" style="padding: 3rem;">
+                                    <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                                    <p>No publications yet. Add your first publication or upload an Excel/CSV file.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Publication Modal -->
+    <div class="modal" id="publicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Add New Publication</h2>
+                <button class="icon-btn" id="closeModal" style="font-size: 1.5rem;">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="publicationForm">
+                    <input type="hidden" id="publicationId">
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubTitle">Title *</label>
+                        <input type="text" class="form-input" id="pubTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubAuthors">Authors *</label>
+                        <input type="text" class="form-input" id="pubAuthors" placeholder="Author 1, Author 2, Author 3"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubYear">Year *</label>
+                        <input type="number" class="form-input" id="pubYear" min="1900" max="2030" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubJournal">Journal/Conference *</label>
+                        <input type="text" class="form-input" id="pubJournal" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubKeywords">Keywords *</label>
+                        <input type="text" class="form-input" id="pubKeywords"
+                            placeholder="keyword1, keyword2, keyword3" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubAbstract">Abstract</label>
+                        <textarea class="form-input" id="pubAbstract" rows="4"
+                            placeholder="Enter publication abstract..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pubLink">Publication Link</label>
+                        <input type="url" class="form-input" id="pubLink" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-success" id="savePublicationBtn">
+                    <span id="saveButtonText">Save Publication</span>
+                    <span id="saveSpinner" class="spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload Excel/CSV File</h2>
+                <button class="icon-btn" id="closeUploadModal" style="font-size: 1.5rem;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drag & Drop File Here</h3>
+                    <p class="text-muted">or click to browse</p>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 1rem;">
+                        Supported formats: .xlsx, .xls, .csv (Max 5MB)
+                    </p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                </div>
+
+                <div id="uploadResult" class="hidden" style="margin-top: 1.5rem;"></div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 10px;">
+                    <h4 style="margin-bottom: 0.5rem;">📋 Required Columns:</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        Title, Authors, Year, Journal/Conference, Keywords
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        Optional: Abstract, Link
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelUploadBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Publication Modal -->
+    <div class="modal" id="viewPublicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📖 Publication Details</h2>
+                <button class="icon-btn" id="closeViewModal" style="font-size: 1.5rem;">✕</button>
+            </div>
+            <div class="modal-body" id="viewPublicationContent">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeViewBtn">Close</button>
+                <button class="btn btn-primary" id="editFromViewBtn">Edit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/table.js"></script>
+    <script src="js/floating-chatbot.js"></script>
+</body>
+
+</html>

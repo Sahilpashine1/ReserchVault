@@ -1,0 +1,20 @@
+services:
+  # Backend API Service
+  - type: web
+    name: faculty-publications-api
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MAX_FILE_SIZE
+        value: 5242880
+      # These should be added manually in Render dashboard for security:
+      # - MONGODB_URI (from MongoDB Atlas)
+      # - JWT_SECRET (generate a strong random string)
+      # - SUPER_ADMIN_EMAIL (your admin email)
+    healthCheckPath: /api/health
