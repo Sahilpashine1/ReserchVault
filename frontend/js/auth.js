@@ -1,5 +1,5 @@
-// API Base URL - loaded from config.js (automatically switches between local and production)
-const API_BASE_URL = `${window.API_BASE_URL || 'http://localhost:5000'}/api`;
+// API Base URL
+window.API_BASE_URL = 'http://localhost:3000/api';
 
 // Check if user is already logged in
 function checkAuth() {
@@ -79,7 +79,7 @@ function initAuthPage() {
         document.getElementById('loginSpinner').classList.remove('hidden');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch(`${window.API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -125,7 +125,7 @@ function initAuthPage() {
         document.getElementById('registerSpinner').classList.remove('hidden');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            const response = await fetch(`${window.API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -164,22 +164,31 @@ function initDashboard() {
 
     if (user) {
         // Display user info
-        document.getElementById('userName').textContent = user.name;
-        document.getElementById('userEmail').textContent = user.email;
+        const userNameEl = document.getElementById('userName');
+        const userEmailEl = document.getElementById('userEmail');
+        const userAvatarEl = document.getElementById('userAvatar');
+
+        if (userNameEl) userNameEl.textContent = user.name;
+        if (userEmailEl) userEmailEl.textContent = user.email;
 
         // Set avatar initial
-        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-        document.getElementById('userAvatar').textContent = initials;
+        if (userAvatarEl) {
+            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            userAvatarEl.textContent = initials;
+        }
     }
 
     // Logout button
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-    });
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.onclick = function () {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        };
+    }
 }
 
 // Get auth headers for API requests
@@ -193,5 +202,5 @@ function getAuthHeaders() {
 
 // Export functions for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { API_BASE_URL, getAuthHeaders, showAlert };
+    module.exports = { getAuthHeaders, showAlert };
 }

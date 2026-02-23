@@ -5,11 +5,11 @@ const auth = require('../middleware/auth');
 const queryEngine = require('../utils/queryEngine');
 
 // @route   POST /api/chatbot/query
-// @desc    Process chatbot query using rule-based engine
+// @desc    Process chatbot query using rule-based engine (context-aware)
 // @access  Private
 router.post('/query', auth, async (req, res) => {
     try {
-        const { query } = req.body;
+        const { query, scope } = req.body; // scope can be 'my' or 'all'
 
         if (!query || query.trim() === '') {
             return res.status(400).json({
@@ -18,17 +18,48 @@ router.post('/query', auth, async (req, res) => {
             });
         }
 
-        // Fetch all publications for the user
-        const publications = await Publication.find({ userId: req.userId }).lean();
+        let publications;
+        let contextMessage = '';
+
+        // Determine which publications to query based on scope
+        if (scope === 'all') {
+            // Check if user has permission to view all publications
+            const User = require('../models/User');
+            const user = await User.findById(req.userId);
+
+            if (user.role === 'super_admin' || user.createdByAdmin) {
+                // Fetch all publications
+                publications = await Publication.find({}).lean();
+                contextMessage = ' (searching across all faculty publications)';
+            } else {
+                // User doesn't have permission, fallback to own publications
+                publications = await Publication.find({ userId: req.userId }).lean();
+                contextMessage = ' (showing your publications only)';
+            }
+        } else {
+            // Default to user's own publications
+            publications = await Publication.find({ userId: req.userId }).lean();
+            contextMessage = ' (showing your publications)';
+        }
 
         // Process query using rule-based engine
         const result = await queryEngine.processQuery(query, publications);
 
+        // Add context to the response
+        let response = result.response;
+        if (scope) {
+            // Prepend context information for clarity
+            const prefix = scope === 'all' ? '📚 **All Publications**: ' : '👤 **Your Publications**: ';
+            response = prefix + result.response;
+        }
+
         res.json({
             success: true,
             query: query,
-            response: result.response,
+            response: response,
             data: result.data,
+            scope: scope || 'my',
+            publicationsCount: publications.length,
             timestamp: new Date().toISOString()
         });
 

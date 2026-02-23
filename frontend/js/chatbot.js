@@ -55,7 +55,7 @@ function toggleChatbot() {
 // Load query suggestions
 async function loadSuggestions() {
     try {
-        const response = await fetch(`${API_BASE_URL}/chatbot/suggestions`, {
+        const response = await fetch(`${window.API_BASE_URL}/chatbot/suggestions`, {
             headers: getAuthHeaders()
         });
 
@@ -102,7 +102,7 @@ async function sendQuery() {
     const typingId = addTypingIndicator();
 
     try {
-        const response = await fetch(`${API_BASE_URL}/chatbot/query`, {
+        const response = await fetch(`${window.API_BASE_URL}/chatbot/query`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ query })

@@ -2,6 +2,7 @@
 const FloatingChatbot = {
     isOpen: false,
     messages: [],
+    currentScope: 'my', // Track current scope: 'my' or 'all'
 
     init() {
         this.injectHTML();
@@ -31,9 +32,12 @@ const FloatingChatbot = {
                 </div>
 
                 <div class="floating-chatbot-input-area">
+                    <div class="floating-chatbot-context" id="chatbotContext" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 0.85rem; text-align: center; border-radius: 8px 8px 0 0; font-weight: 600;">
+                        📚 Context: <span id="contextLabel">Your Publications</span>
+                    </div>
                     <div class="floating-suggestions" id="floatingSuggestions">
-                        <div class="floating-suggestion-chip" data-query="Show my publications">📚 My Publications</div>
-                        <div class="floating-suggestion-chip" data-query="What are my top research areas?">🔍 Research Areas</div>
+                        <div class="floating-suggestion-chip" data-query="Show publication summary">📚 Summary</div>
+                        <div class="floating-suggestion-chip" data-query="What are the top research areas?">🔍 Research Areas</div>
                         <div class="floating-suggestion-chip" data-query="Show publications from 2024">📅 Recent Work</div>
                     </div>
                     <div class="floating-input-group">
@@ -112,8 +116,30 @@ const FloatingChatbot = {
 
     showWelcomeMessage() {
         setTimeout(() => {
-            this.addMessage('bot', "👋 Hi! I'm your Academic Assistant. I can help you with questions about your publications, research areas, and more. How can I assist you today?");
+            this.updateContext();
+            const scopeText = this.currentScope === 'all' ? 'all research publications' : 'your publications';
+            this.addMessage('bot', `👋 Hi! I'm your Academic Assistant. I can help you with questions about ${scopeText}, research areas, and more. How can I assist you today?`);
         }, 1000);
+    },
+
+    // Update context based on current tab
+    updateContext() {
+        // Check if we're on dashboard page with tabs
+        if (typeof currentTab !== 'undefined') {
+            this.currentScope = currentTab; // 'my' or 'all'
+        } else {
+            this.currentScope = 'my'; // Default to 'my'
+        }
+
+        // Update context label
+        const contextLabel = document.getElementById('contextLabel');
+        if (contextLabel) {
+            if (this.currentScope === 'all') {
+                contextLabel.textContent = 'All Research Publications';
+            } else {
+                contextLabel.textContent = 'Your Publications';
+            }
+        }
     },
 
     async sendMessage() {
@@ -122,6 +148,9 @@ const FloatingChatbot = {
 
         if (!message) return;
 
+        // Update context before sending
+        this.updateContext();
+
         // Add user message
         this.addMessage('user', message);
         input.value = '';
@@ -129,18 +158,19 @@ const FloatingChatbot = {
         // Show typing indicator
         this.showTyping();
 
-        // Send to API
+        // Send to API with current scope
         try {
             const token = localStorage.getItem('token');
-            // Use API_BASE_URL from config.js (automatically switches between local and production)
-            const apiUrl = `${window.API_BASE_URL || 'http://localhost:5000'}/api/chatbot/query`;
-            const response = await fetch(apiUrl, {
+            const response = await fetch('http://localhost:3000/api/chatbot/query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ query: message })
+                body: JSON.stringify({
+                    query: message,
+                    scope: this.currentScope // Send current scope
+                })
             });
 
             const data = await response.json();
@@ -149,7 +179,9 @@ const FloatingChatbot = {
             this.removeTyping();
 
             if (response.ok) {
-                this.addMessage('bot', data.response);
+                // Format the response to handle markdown-style formatting
+                const formattedResponse = this.formatResponse(data.response);
+                this.addMessage('bot', formattedResponse);
             } else {
                 this.addMessage('bot', '❌ Sorry, I encountered an error. Please try again.');
             }
@@ -159,6 +191,15 @@ const FloatingChatbot = {
         }
     },
 
+    // Format response to handle markdown-style formatting
+    formatResponse(text) {
+        // Convert **bold** to actual bold
+        let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Convert newlines to breaks
+        formatted = formatted.replace(/\n/g, '<br>');
+        return formatted;
+    },
+
     addMessage(type, text) {
         const messagesContainer = document.getElementById('floatingChatMessages');
         const messageDiv = document.createElement('div');
@@ -166,7 +207,12 @@ const FloatingChatbot = {
 
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = text;
+        // Use innerHTML for bot messages to support formatting
+        if (type === 'bot') {
+            contentDiv.innerHTML = text;
+        } else {
+            contentDiv.textContent = text;
+        }
 
         const timeDiv = document.createElement('div');
         timeDiv.className = 'message-time';

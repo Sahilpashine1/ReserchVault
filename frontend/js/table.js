@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadPublications() {
     try {
         // First, load user's own publications
-        const myResponse = await fetch(`${API_BASE_URL}/publications?own=true`, {
+        const myResponse = await fetch(`${window.API_BASE_URL}/publications?own=true`, {
             headers: getAuthHeaders()
         });
 
@@ -41,7 +41,7 @@ async function loadPublications() {
 
             // If user can view all publications, fetch them
             if (canViewAllPublications) {
-                const allResponse = await fetch(`${API_BASE_URL}/publications`, {
+                const allResponse = await fetch(`${window.API_BASE_URL}/publications`, {
                     headers: getAuthHeaders()
                 });
 
@@ -270,7 +270,7 @@ async function savePublication() {
     };
 
     try {
-        const url = id ? `${API_BASE_URL}/publications/${id}` : `${API_BASE_URL}/publications`;
+        const url = id ? `${window.API_BASE_URL}/publications/${id}` : `${window.API_BASE_URL}/publications`;
         const method = id ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
@@ -422,7 +422,7 @@ async function deletePublication(id) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/publications/${id}`, {
+        const response = await fetch(`${window.API_BASE_URL}/publications/${id}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
         });
@@ -508,7 +508,7 @@ async function handleFileUpload(file) {
     uploadResult.classList.remove('hidden');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/publications/upload`, {
+        const response = await fetch(`${window.API_BASE_URL}/publications/upload`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -625,6 +625,11 @@ function switchTab(tab) {
 
     // Re-render table
     renderPublications(publications);
+
+    // Update chatbot context if available
+    if (typeof FloatingChatbot !== 'undefined' && FloatingChatbot.updateContext) {
+        FloatingChatbot.updateContext();
+    }
 }
 
 // Escape HTML to prevent XSS

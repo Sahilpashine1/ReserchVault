@@ -16,6 +16,10 @@ class QueryEngine {
 
         // Route to appropriate handler
         switch (intent) {
+            case 'count':
+                return this.getPublicationCount(publications);
+            case 'list_publications':
+                return this.listPublications(publications);
             case 'summary':
                 return this.generateSummary(publications);
             case 'research_areas':
@@ -40,13 +44,15 @@ class QueryEngine {
      */
     detectIntent(query) {
         const intents = {
+            count: ['how many', 'number of publication', 'total publication'],
+            list_publications: ['what are my publication', 'show my publication', 'list my publication', 'my publication'],
             summary: ['summary', 'summarize', 'overview', 'profile'],
             research_areas: ['research area', 'main area', 'focus', 'domain', 'field'],
             time_filter: ['after', 'before', 'since', 'year', 'recent', 'between'],
             journal_analysis: ['journal', 'conference', 'venue', 'published most', 'where'],
             latest_link: ['latest', 'recent', 'newest', 'open', 'link'],
             missing_links: ['missing link', 'without link', 'no link'],
-            stats: ['how many', 'count', 'total', 'number of', 'statistics']
+            stats: ['statistics', 'detailed stats', 'full statistics']
         };
 
         for (const [intent, keywords] of Object.entries(intents)) {
@@ -56,6 +62,53 @@ class QueryEngine {
         }
 
         return 'unknown';
+    }
+
+    /**
+     * Get simple publication count
+     */
+    getPublicationCount(publications) {
+        const count = publications.length;
+
+        if (count === 0) {
+            return {
+                response: "You have 0 publications.",
+                data: { count: 0 }
+            };
+        }
+
+        return {
+            response: `You have ${count} publication${count > 1 ? 's' : ''}.`,
+            data: { count: count }
+        };
+    }
+
+    /**
+     * List publications with titles and links
+     */
+    listPublications(publications) {
+        if (publications.length === 0) {
+            return {
+                response: "You don't have any publications yet.",
+                data: null
+            };
+        }
+
+        let response = `📚 **Your Publications** (${publications.length}):\n\n`;
+
+        publications.forEach((pub, index) => {
+            response += `${index + 1}. **${pub.title}** (${pub.year})\n`;
+            response += `   _${pub.journalConference}_\n`;
+            if (pub.publicationLink && pub.publicationLink.trim() !== '') {
+                response += `   🔗 ${pub.publicationLink}\n`;
+            }
+            response += `\n`;
+        });
+
+        return {
+            response: response,
+            data: publications
+        };
     }
 
     /**

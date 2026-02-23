@@ -3,8 +3,8 @@
  * User Management Interface for Super Admin
  */
 
-// API URL - loaded from config.js (automatically switches between local and production)
-const API_URL = `${window.API_BASE_URL || 'http://localhost:5000'}/api`;
+// API URL
+window.API_URL = 'http://localhost:3000/api';
 let currentUsers = [];
 let currentUserId = null;
 let isEditMode = false;
@@ -119,7 +119,7 @@ function switchTab(tabName) {
 async function loadUsers() {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/users`, {
+        const response = await fetch(`${window.API_URL}/admin/users`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -257,7 +257,7 @@ function openCreateUserModal() {
 async function editUser(userId) {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+        const response = await fetch(`${window.API_URL}/admin/users/${userId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -326,8 +326,8 @@ async function saveUser() {
     try {
         const token = localStorage.getItem('token');
         const url = isEditMode
-            ? `${API_URL}/admin/users/${currentUserId}`
-            : `${API_URL}/admin/users`;
+            ? `${window.API_URL}/admin/users/${currentUserId}`
+            : `${window.API_URL}/admin/users`;
 
         const method = isEditMode ? 'PUT' : 'POST';
 
@@ -415,7 +415,7 @@ async function confirmRoleChange() {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/users/${currentUserId}/role`, {
+        const response = await fetch(`${window.API_URL}/admin/users/${currentUserId}/role`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -450,7 +450,7 @@ async function deleteUser(userId, userName) {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+        const response = await fetch(`${window.API_URL}/admin/users/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -478,7 +478,7 @@ async function deleteUser(userId, userName) {
 async function loadStats() {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/stats`, {
+        const response = await fetch(`${window.API_URL}/admin/stats`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -503,7 +503,7 @@ async function loadDetailedStats() {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/stats`, {
+        const response = await fetch(`${window.API_URL}/admin/stats`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -552,7 +552,7 @@ async function loadActivityLogs() {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/activity-logs?limit=50`, {
+        const response = await fetch(`${window.API_URL}/admin/activity-logs?limit=50`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -638,7 +638,7 @@ function showAlert(message, type = 'info') {
 async function logout() {
     try {
         const token = localStorage.getItem('token');
-        await fetch(`${API_URL}/auth/logout`, {
+        await fetch(`${window.API_URL}/auth/logout`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -657,3 +657,4 @@ async function logout() {
 window.editUser = editUser;
 window.openRoleModal = openRoleModal;
 window.deleteUser = deleteUser;
+
