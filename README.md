@@ -1,6 +1,15 @@
-# 📚 Faculty Publications Management System
+# 📚 ResearchVault: Faculty Publications Management System
+
+![GitHub repo size](https://img.shields.io/github/repo-size/Sahilpashine1/ReserchVault?style=flat-square)
+![GitHub open issues](https://img.shields.io/github/issues/Sahilpashine1/ReserchVault?style=flat-square)
+![GitHub stars](https://img.shields.io/github/stars/Sahilpashine1/ReserchVault?style=flat-square)
+![GitHub license](https://img.shields.io/github/license/Sahilpashine1/ReserchVault?style=flat-square)
+
+**College Project by [Sahilpashine1](https://github.com/Sahilpashine1)**
 
 A full-stack web application for faculty members to manage, store, and query their research publications using a Notion-style table interface and an intelligent rule-based Academic Query Assistant.
+
+[**Explore the Repository on GitHub**](https://github.com/Sahilpashine1/ReserchVault) \| [**Report Bug**](https://github.com/Sahilpashine1/ReserchVault/issues) \| [**Request Feature**](https://github.com/Sahilpashine1/ReserchVault/issues)
 
 ## 🎯 Project Overview
 
