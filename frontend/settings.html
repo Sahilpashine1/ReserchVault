@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | ResearchVault</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .settings-section {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .settings-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-section-header h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .settings-row-info h3 {
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .settings-row-info p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Toggle switch */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .toggle-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.toggle-slider {
+            background: var(--blue-600);
+        }
+
+        input:checked+.toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        /* Security option card */
+        .security-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+            margin-bottom: 0.65rem;
+        }
+
+        .security-option:hover {
+            border-color: var(--blue-300);
+            background: var(--blue-50);
+        }
+
+        .security-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--blue-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .security-option-info {
+            flex: 1;
+        }
+
+        .security-option-info h3 {
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .security-option-info p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .security-option-arrow {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <a class="logo-brand" href="home.html">
+                    <svg class="logo-icon" viewBox="0 0 40 44" fill="none">
+                        <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="white"
+                            opacity="0.95" />
+                        <path d="M13 22L17.5 26.5L27 16" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="logo-text">Research<span>Vault</span></span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="home.html" class="nav-link"><span
+                                class="nav-icon">🏠</span><span>Dashboard</span></a></li>
+                    <li class="nav-item" id="adminMenuItem" style="display:none;"><a href="admin.html"
+                            class="nav-link"><span class="nav-icon">👥</span><span>User Management</span></a></li>
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link"><span
+                                class="nav-icon">📋</span><span>Faculty Publications</span></a></li>
+                    <li class="nav-item"><a href="profile.html" class="nav-link"><span
+                                class="nav-icon">👤</span><span>Profile</span></a></li>
+
+                    <li class="nav-item"><a href="settings.html" class="nav-link active"><span
+                                class="nav-icon">⚙️</span><span>Settings</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="main-area">
+            <header class="top-header">
+                <div class="header-spacer"></div>
+                <div class="header-actions">
+                    <div class="header-bell">🔔</div>
+                    <div class="header-user">
+                        <div class="header-avatar" id="userAvatar">U</div>
+                        <span class="header-user-name" id="userName">User</span>
+                    </div>
+                    <button class="logout-btn-header" id="logoutBtn">🚪 Logout</button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Settings</h1>
+                        <p class="page-subtitle">Manage your account preferences and security</p>
+                    </div>
+                </div>
+
+                <div id="alertArea"></div>
+
+                <!-- Profile Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <span style="font-size:1.2rem;">👤</span>
+                        <h2>Profile Settings</h2>
+                    </div>
+                    <form id="profileSettingsForm">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Display Name</label>
+                                <input type="text" class="form-input" id="settingsName" placeholder="Your name">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Email Address</label>
+                                <div style="position:relative;">
+                                    <input type="email" class="form-input" id="settingsEmail"
+                                        placeholder="your@email.com" style="padding-right:140px;">
+                                    <button type="button" class="btn btn-secondary btn-sm"
+                                        id="changePasswordSettingsBtn"
+                                        style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);">Change
+                                        Password</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-input" id="settingsDepartment" placeholder="Your department">
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <span id="saveSettingsText">💾 Save Profile</span>
+                                <span id="saveSettingsSpinner" class="spinner hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Application Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <span style="font-size:1.2rem;">⚙️</span>
+                        <h2>Application Settings</h2>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h3>Email Notifications</h3>
+                            <p>Receive email updates about your publications and account activity</p>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <span class="toggle-label" id="notifLabel">On</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="emailNotifToggle" checked onchange="toggleNotif(this)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h3>Dark Mode</h3>
+                            <p>Switch between light and dark interface themes</p>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <span class="toggle-label" id="darkLabel">Off</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="darkModeToggle" onchange="toggleDark(this)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h3>Chatbot Auto-Open</h3>
+                            <p>Automatically open the chatbot assistant when you log in</p>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <span class="toggle-label" id="chatbotLabel">Off</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="chatbotToggle" onchange="toggleChatbot(this)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <span style="font-size:1.2rem;">🛡️</span>
+                        <h2>Security Settings</h2>
+                    </div>
+                    <div class="security-option" onclick="openChangePassword()">
+                        <div class="security-option-icon">🔑</div>
+                        <div class="security-option-info">
+                            <h3>Change Password</h3>
+                            <p>Update your login password to keep your account secure</p>
+                        </div>
+                        <span class="security-option-arrow">›</span>
+                    </div>
+                    <div class="security-option" onclick="setup2FA()">
+                        <div class="security-option-icon" style="background:#fef3c7;">📱</div>
+                        <div class="security-option-info">
+                            <h3>Set up Two-Factor Authentication</h3>
+                            <p>Set up DOC Two-Factor Authentication for extra security</p>
+                        </div>
+                        <span class="security-option-arrow">›</span>
+                    </div>
+                    <div class="security-option" onclick="logoutAllDevices()" style="border-color:var(--danger-bg);">
+                        <div class="security-option-icon" style="background:var(--danger-bg);">🚪</div>
+                        <div class="security-option-info">
+                            <h3>Log Out All Devices</h3>
+                            <p>Sign out from all sessions across all your devices</p>
+                        </div>
+                        <span class="security-option-arrow" style="color:var(--danger);">›</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePwdModal">
+        <div class="modal-content" style="max-width:440px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔑 Change Password</h2>
+                <button class="icon-btn" onclick="closeModal('changePwdModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="pwdAlert"></div>
+                <form id="changePwdForm">
+                    <div class="form-group"><label class="form-label">Current Password *</label><input type="password"
+                            class="form-input" id="curPwd" required></div>
+                    <div class="form-group"><label class="form-label">New Password *</label><input type="password"
+                            class="form-input" id="newPwd" required minlength="6"></div>
+                    <div class="form-group"><label class="form-label">Confirm New Password *</label><input
+                            type="password" class="form-input" id="confPwd" required minlength="6"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('changePwdModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPwdChange()">
+                    <span id="pwdBtnText">Change Password</span>
+                    <span id="pwdBtnSpinner" class="spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        const API_URL = window.API_URL || 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'index.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const name = user.name || 'User';
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+            // Fetch profile picture for navbar
+            fetch(`${API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(r => r.ok ? r.json() : null)
+                .then(res => {
+                    if (res?.data?.profilePicture) {
+                        document.getElementById('userAvatar').innerHTML = `<img src="${res.data.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    }
+                }).catch(() => {});
+            if (user.role === 'super_admin') document.getElementById('adminMenuItem').style.display = 'block';
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('changePasswordSettingsBtn').addEventListener('click', openChangePassword);
+            document.getElementById('profileSettingsForm').addEventListener('submit', saveProfile);
+            loadProfile();
+
+            // Load preferences from localStorage
+            const prefs = JSON.parse(localStorage.getItem('rvPrefs') || '{}');
+            if (prefs.chatbotAuto) { document.getElementById('chatbotToggle').checked = true; document.getElementById('chatbotLabel').textContent = 'On'; }
+        });
+
+        async function loadProfile() {
+            try {
+                const r = await fetch(`${API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) return;
+                const res = await r.json();
+                document.getElementById('settingsName').value = res.data.name || '';
+                document.getElementById('settingsEmail').value = res.data.email || '';
+                document.getElementById('settingsDepartment').value = res.data.department || '';
+            } catch (e) { }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsText'); const sp = document.getElementById('saveSettingsSpinner');
+            btn.classList.add('hidden'); sp.classList.remove('hidden');
+            try {
+                const r = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ name: document.getElementById('settingsName').value, email: document.getElementById('settingsEmail').value, department: document.getElementById('settingsDepartment').value })
+                });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message);
+                user.name = res.data.name; localStorage.setItem('user', JSON.stringify(user));
+                document.getElementById('userName').textContent = res.data.name;
+                showAlert('Profile saved successfully!', 'success');
+            } catch (e) { showAlert(e.message || 'Failed to save', 'error'); }
+            finally { btn.classList.remove('hidden'); sp.classList.add('hidden'); }
+        }
+
+        function toggleNotif(el) { document.getElementById('notifLabel').textContent = el.checked ? 'On' : 'Off'; showAlert('Notification preference saved.', 'success'); }
+        function toggleDark(el) { document.getElementById('darkLabel').textContent = el.checked ? 'On' : 'Off'; showAlert('Theme preference saved (coming soon).', 'success'); }
+        function toggleChatbot(el) {
+            document.getElementById('chatbotLabel').textContent = el.checked ? 'On' : 'Off';
+            const prefs = JSON.parse(localStorage.getItem('rvPrefs') || '{}');
+            prefs.chatbotAuto = el.checked; localStorage.setItem('rvPrefs', JSON.stringify(prefs));
+            showAlert('Chatbot preference saved.', 'success');
+        }
+
+        function openChangePassword() { document.getElementById('changePwdModal').classList.add('open'); document.getElementById('pwdAlert').innerHTML = ''; document.getElementById('changePwdForm').reset(); }
+        function setup2FA() { showAlert('Two-Factor Authentication setup coming soon!', 'success'); }
+        function logoutAllDevices() { if (confirm('Log out from all devices?')) logout(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        async function submitPwdChange() {
+            const cur = document.getElementById('curPwd').value;
+            const newP = document.getElementById('newPwd').value;
+            const conf = document.getElementById('confPwd').value;
+            if (newP !== conf) { document.getElementById('pwdAlert').innerHTML = '<div class="alert alert-error">Passwords do not match</div>'; return; }
+            if (newP.length < 6) { document.getElementById('pwdAlert').innerHTML = '<div class="alert alert-error">Password must be at least 6 characters</div>'; return; }
+            const btn = document.getElementById('pwdBtnText'); const sp = document.getElementById('pwdBtnSpinner');
+            btn.classList.add('hidden'); sp.classList.remove('hidden');
+            try {
+                const r = await fetch(`${API_URL}/profile/password`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ currentPassword: cur, newPassword: newP })
+                });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message);
+                closeModal('changePwdModal');
+                showAlert('Password changed successfully!', 'success');
+            } catch (e) { document.getElementById('pwdAlert').innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+            finally { btn.classList.remove('hidden'); sp.classList.add('hidden'); }
+        }
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('alertArea');
+            const cls = type === 'success' ? 'alert-success' : 'alert-error';
+            const div = document.createElement('div');
+            div.className = `alert ${cls}`; div.textContent = msg; el.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 4000);
+        }
+
+        async function logout() {
+            try { await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }); } catch (e) { }
+            localStorage.removeItem('token'); localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

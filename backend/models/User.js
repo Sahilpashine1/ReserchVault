@@ -33,6 +33,38 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+
+    // ── Academic / professional fields ──────────────────────
+    designation: {
+        type: String,
+        default: ''   // e.g. "Assistant Professor", "Associate Professor"
+    },
+    specialization: {
+        type: String,
+        default: ''   // e.g. "Machine Learning, Computer Vision"
+    },
+    yearsOfExperience: {
+        type: Number,
+        default: null
+    },
+    education: {
+        type: String,
+        default: ''   // e.g. "Ph.D. (CS) - IIT Bombay, 2018"
+    },
+    googleScholar: {
+        type: String,
+        default: ''
+    },
+    orcid: {
+        type: String,
+        default: ''
+    },
+    website: {
+        type: String,
+        default: ''
+    },
+
+    // ── Role & Access ────────────────────────────────────────
     role: {
         type: String,
         enum: ['user', 'super_admin'],
@@ -40,13 +72,37 @@ const userSchema = new mongoose.Schema({
     },
     createdByAdmin: {
         type: Boolean,
-        default: false // true if created by super admin, false if self-registered
+        default: false   // true if created by super admin, false if self-registered
     },
     isActive: {
         type: Boolean,
         default: true
     },
+
+    // ── Email Verification (OTP) ─────────────────────────────
+    isVerified: {
+        type: Boolean,
+        default: false   // user cannot login until email is verified
+    },
+    otp: {
+        type: String,
+        default: null    // 6-digit numeric OTP (expires in 10 min)
+    },
+    otpExpiry: {
+        type: Date,
+        default: null
+    },
+
+    // ── Audit / Timestamps ────────────────────────────────────
     lastLogin: {
+        type: Date,
+        default: null
+    },
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpires: {
         type: Date,
         default: null
     },

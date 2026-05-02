@@ -41,32 +41,15 @@ const upload = multer({
 // @route   GET /api/publications
 // @desc    Get publications based on user type
 // @access  Private
+// @route   GET /api/publications
+// @desc    Get MY publications (own only)
+// @access  Private
 router.get('/', auth, attachUser, async (req, res) => {
     try {
-        const { sort, filter, search, own } = req.query;
+        const { sort, search } = req.query;
 
-        let query = {};
-
-        // Access control based on user type:
-        // 1. Self-registered users (createdByAdmin=false) - can ONLY see their own publications
-        // 2. Admin-created users (createdByAdmin=true) - can see all publications OR filter to own
-        // 3. Super admin - can see everything
-
-        if (req.user.role === 'super_admin') {
-            // Super admin sees all publications (unless filtering to own)
-            if (own === 'true') {
-                query.userId = req.userId;
-            }
-        } else if (req.user.createdByAdmin) {
-            // Admin-created users can toggle between own and all publications
-            if (own === 'true') {
-                query.userId = req.userId;
-            }
-            // If own !== 'true', they see all publications
-        } else {
-            // Self-registered users can ONLY see their own publications
-            query.userId = req.userId;
-        }
+        // Always return only the logged-in user's own publications
+        let query = { userId: req.userId };
 
         // Search functionality
         if (search) {
@@ -78,19 +61,10 @@ router.get('/', auth, attachUser, async (req, res) => {
             ];
         }
 
-        // Filter by year
-        if (filter) {
-            const filterObj = JSON.parse(filter);
-            if (filterObj.year) {
-                query.year = filterObj.year;
-            }
-        }
-
         // Sorting
-        let sortOption = { createdDate: -1 }; // Default: newest first
+        let sortOption = { createdDate: -1 };
         if (sort) {
-            const sortObj = JSON.parse(sort);
-            sortOption = sortObj;
+            try { sortOption = JSON.parse(sort); } catch (e) { }
         }
 
         const publications = await Publication.find(query)
@@ -102,13 +76,57 @@ router.get('/', auth, attachUser, async (req, res) => {
             count: publications.length,
             publications: publications,
             userRole: req.user.role,
-            currentUserId: req.userId,
-            createdByAdmin: req.user.createdByAdmin // Frontend needs this to show/hide tabs
+            currentUserId: req.userId
         });
 
     } catch (error) {
         console.error('Get publications error:', error);
         res.status(500).json({ message: 'Error fetching publications' });
+    }
+});
+
+// @route   GET /api/publications/all
+// @desc    Get ALL publications from ALL faculty (read-only for regular users)
+// @access  Private (all authenticated users)
+router.get('/all', auth, attachUser, async (req, res) => {
+    try {
+        const { search, year, sort } = req.query;
+
+        let query = {};
+
+        // Search functionality
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { authors: { $regex: search, $options: 'i' } },
+                { keywords: { $regex: search, $options: 'i' } },
+                { journalConference: { $regex: search, $options: 'i' } },
+                { department: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (year) query.year = parseInt(year);
+
+        let sortOption = { createdDate: -1 };
+        if (sort) {
+            try { sortOption = JSON.parse(sort); } catch (e) { }
+        }
+
+        const publications = await Publication.find(query)
+            .sort(sortOption)
+            .populate('userId', 'name email department');
+
+        res.json({
+            success: true,
+            count: publications.length,
+            publications: publications,
+            userRole: req.user.role,
+            currentUserId: req.userId
+        });
+
+    } catch (error) {
+        console.error('Get all publications error:', error);
+        res.status(500).json({ message: 'Error fetching all publications' });
     }
 });
 
@@ -140,7 +158,12 @@ router.post('/', auth, attachUser, logAction('add', 'publication'), async (req, 
     try {
         // All authenticated faculty can add publications
 
-        const { title, authors, year, journalConference, keywords, abstract, publicationLink } = req.body;
+        const {
+            title, authors, year, journalConference, keywords,
+            abstract, publicationLink,
+            department, monthYear, volumeIssuePageNo, issnIsbn,
+            indexing, collaborationType, collaborativeInstitution
+        } = req.body;
 
         // Validation
         if (!title || !authors || !year || !journalConference || !keywords) {
@@ -157,7 +180,14 @@ router.post('/', auth, attachUser, logAction('add', 'publication'), async (req, 
             journalConference,
             keywords,
             abstract: abstract || '',
-            publicationLink: publicationLink || ''
+            publicationLink: publicationLink || '',
+            department: department || '',
+            monthYear: monthYear || '',
+            volumeIssuePageNo: volumeIssuePageNo || '',
+            issnIsbn: issnIsbn || '',
+            indexing: indexing || 'Others',
+            collaborationType: collaborationType || '',
+            collaborativeInstitution: collaborativeInstitution || ''
         });
 
         await publication.save();
@@ -193,7 +223,12 @@ router.put('/:id', auth, attachUser, logAction('edit', 'publication'), async (re
         }
 
         // Update fields
-        const { title, authors, year, journalConference, keywords, abstract, publicationLink } = req.body;
+        const {
+            title, authors, year, journalConference, keywords,
+            abstract, publicationLink,
+            department, monthYear, volumeIssuePageNo, issnIsbn,
+            indexing, collaborationType, collaborativeInstitution
+        } = req.body;
 
         if (title) publication.title = title;
         if (authors) publication.authors = authors;
@@ -202,6 +237,13 @@ router.put('/:id', auth, attachUser, logAction('edit', 'publication'), async (re
         if (keywords) publication.keywords = keywords;
         if (abstract !== undefined) publication.abstract = abstract;
         if (publicationLink !== undefined) publication.publicationLink = publicationLink;
+        if (department !== undefined) publication.department = department;
+        if (monthYear !== undefined) publication.monthYear = monthYear;
+        if (volumeIssuePageNo !== undefined) publication.volumeIssuePageNo = volumeIssuePageNo;
+        if (issnIsbn !== undefined) publication.issnIsbn = issnIsbn;
+        if (indexing !== undefined) publication.indexing = indexing;
+        if (collaborationType !== undefined) publication.collaborationType = collaborationType;
+        if (collaborativeInstitution !== undefined) publication.collaborativeInstitution = collaborativeInstitution;
 
         await publication.save();
 

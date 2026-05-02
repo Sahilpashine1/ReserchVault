@@ -16,15 +16,56 @@ const publicationSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    department: {
+        type: String,
+        default: '',
+        trim: true
+    },
     year: {
         type: Number,
         required: true,
         min: 1900,
         max: new Date().getFullYear() + 1
     },
+    monthYear: {
+        type: String,
+        default: '',
+        trim: true
+    },
     journalConference: {
         type: String,
         required: true,
+        trim: true
+    },
+    volumeIssuePageNo: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    issnIsbn: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    publicationLink: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    indexing: {
+        type: String,
+        default: 'Others',
+        enum: ['SCI', 'SCIE', 'Scopus', 'UGC Care', 'Web of Science', 'Others'],
+        trim: true
+    },
+    collaborationType: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    collaborativeInstitution: {
+        type: String,
+        default: '',
         trim: true
     },
     keywords: {
@@ -37,10 +78,10 @@ const publicationSchema = new mongoose.Schema({
         default: '',
         trim: true
     },
-    publicationLink: {
+    status: {
         type: String,
-        default: '',
-        trim: true
+        default: 'published',
+        enum: ['published', 'review', 'pending', 'rejected']
     },
     createdDate: {
         type: Date,

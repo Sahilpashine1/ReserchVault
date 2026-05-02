@@ -7,557 +7,858 @@
     <title>My Profile | ResearchVault</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .profile-container {
-            max-width: 900px;
-            margin: 0 auto;
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        .profile-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
+        @media(max-width:860px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Profile hero card */
+        .profile-hero-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 1.25rem;
+            margin-bottom: 1rem;
         }
 
-        .profile-picture-section {
-            position: relative;
-        }
-
-        .profile-picture {
-            width: 150px;
-            height: 150px;
+        .profile-pic-circle {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--primary-blue);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--blue-400), var(--blue-700));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 2rem;
+            font-weight: 700;
             color: white;
-            font-weight: 600;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 3px solid var(--blue-100);
+            position: relative;
         }
 
-        .profile-picture img {
+        .profile-pic-circle img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
             object-fit: cover;
+            border-radius: 50%;
         }
 
-        .upload-btn {
+        .profile-upload-btn {
             position: absolute;
             bottom: 0;
             right: 0;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            background: var(--blue-600);
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
             cursor: pointer;
-            font-size: 1.2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            color: white;
         }
 
-        .upload-btn:hover {
-            transform: scale(1.1);
-            background: #1d4ed8;
-        }
-
-        .profile-info {
+        .profile-hero-meta {
             flex: 1;
         }
 
-        .profile-name {
-            font-size: 2rem;
-            color: var(--primary-navy);
-            margin-bottom: 0.5rem;
+        .profile-hero-meta h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        .profile-email {
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
+        .profile-hero-meta p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin: 0.1rem 0;
         }
 
-        .profile-role {
+        .profile-hero-meta .role-pill {
             display: inline-block;
-            padding: 0.3rem 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 0.2rem 0.75rem;
+            background: var(--blue-50);
+            color: var(--blue-700);
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        .profile-hero-stats {
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .ph-stat {
+            text-align: center;
+        }
+
+        .ph-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .ph-stat-label {
+            font-size: 0.67rem;
+            color: var(--text-muted);
+        }
+
+        /* Section card */
+        .profile-section-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-section-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Research area tags */
+        .area-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .area-tag {
+            padding: 0.28rem 0.8rem;
+            background: var(--blue-50);
+            color: var(--blue-700);
+            border-radius: 20px;
+            font-size: 0.78rem;
             font-weight: 600;
         }
 
-        .profile-form-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .delete-photo-btn {
-            background: #ef4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
+        .area-tag-add {
+            padding: 0.28rem 0.8rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1.5px dashed var(--border-color);
+            border-radius: 20px;
+            font-size: 0.78rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
+            transition: all var(--transition);
         }
 
-        .delete-photo-btn:hover {
-            background: #dc2626;
+        .area-tag-add:hover {
+            border-color: var(--blue-300);
+            color: var(--blue-600);
+        }
+
+        /* Academic links */
+        .academic-link {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.82rem;
+        }
+
+        .academic-link:last-child {
+            border-bottom: none;
+        }
+
+        .academic-link-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .academic-link a {
+            color: var(--blue-600);
+            text-decoration: none;
+        }
+
+        .academic-link a:hover {
+            text-decoration: underline;
+        }
+
+        .academic-link-label {
+            color: var(--text-muted);
+            min-width: 90px;
+            font-size: 0.78rem;
+        }
+
+        /* Publications summary chips */
+        .pub-summary-chips {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pub-sum-chip {
+            padding: 0.5rem 0.85rem;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 70px;
+        }
+
+        .pub-sum-chip .num {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .pub-sum-chip .lbl {
+            font-size: 0.68rem;
+            margin-top: 0.1rem;
+        }
+
+        .pub-sum-chip.green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .pub-sum-chip.yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pub-sum-chip.orange {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .pub-sum-chip.red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Security settings row */
+        .security-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .security-row:last-child {
+            border-bottom: none;
+        }
+
+        .security-row-label {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mini-toggle {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+
+        .mini-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .mini-slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .mini-slider::before {
+            content: '';
+            position: absolute;
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.mini-slider {
+            background: var(--blue-600);
+        }
+
+        input:checked+.mini-slider::before {
+            transform: translateX(18px);
+        }
+
+        /* Edit profile button */
+        .section-edit-btn {
+            font-size: 0.78rem;
+            color: var(--blue-600);
+            background: var(--blue-50);
+            border: none;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+
+        .section-edit-btn:hover {
+            background: var(--blue-100);
         }
     </style>
 </head>
 
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
+    <div class="app-layout">
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
-            <div class="logo-section">
-                <h2>🔬 ResearchVault</h2>
-                <p>Research Management</p>
+            <div class="sidebar-logo">
+                <a class="logo-brand" href="home.html">
+                    <svg class="logo-icon" viewBox="0 0 40 44" fill="none">
+                        <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="white"
+                            opacity="0.95" />
+                        <path d="M13 22L17.5 26.5L27 16" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="logo-text">Research<span>Vault</span></span>
+                </a>
             </div>
-            <nav>
+            <nav class="sidebar-nav">
                 <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="home.html" class="nav-link">
-                            <span>🏠</span>
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="dashboard.html" class="nav-link">
-                            <span>📊</span>
-                            <span>Publications</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="profile.html" class="nav-link active">
-                            <span>👤</span>
-                            <span>My Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" id="adminMenuItem" style="display: none;">
-                        <a href="admin.html" class="nav-link">
-                            <span>🔐</span>
-                            <span>Admin Panel</span>
-                        </a>
-                    </li>
+                    <li class="nav-item"><a href="home.html" class="nav-link"><span
+                                class="nav-icon">🏠</span><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link"><span
+                                class="nav-icon">📋</span><span>Faculty Publications</span></a></li>
+                    <li class="nav-item"><a href="profile.html" class="nav-link active"><span
+                                class="nav-icon">👤</span><span>Profile</span></a></li>
+                    <li class="nav-item" id="adminMenuItem" style="display:none;"><a href="admin.html"
+                            class="nav-link"><span class="nav-icon">🔐</span><span>Admin Panel</span></a></li>
+
+                    <li class="nav-item"><a href="settings.html" class="nav-link"><span
+                                class="nav-icon">⚙️</span><span>Settings</span></a></li>
                 </ul>
             </nav>
-            <div class="user-section">
-                <div class="user-info">
-                    <div class="user-avatar" id="sidebarAvatar">U</div>
-                    <div class="user-details">
-                        <h4 id="userName">User Name</h4>
-                        <p id="userEmail">user@email.com</p>
-                    </div>
-                </div>
-                <button class="btn btn-danger" id="logoutBtn" style="width: 100%; padding: 0.6rem;">
-                    🚪 Logout
-                </button>
-            </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="profile-container">
-                <header class="page-header" style="display: block;">
-                    <h1 class="page-title">My Profile</h1>
-                    <p class="page-subtitle">Manage your personal information and settings</p>
-                </header>
+        <div class="main-area">
+            <header class="top-header">
+                <div class="header-spacer"></div>
+                <div class="header-actions">
+                    <div class="header-bell">🔔</div>
+                    <div class="header-user">
+                        <div class="header-avatar" id="sidebarAvatar">U</div>
+                        <span class="header-user-name" id="userName">User</span>
+                    </div>
+                    <button class="logout-btn-header" id="logoutBtn">🚪 Logout</button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">My Profile</h1>
+                        <p class="page-subtitle">Manage your personal information and academic details</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openEditModal()">✏️ Edit Profile</button>
+                </div>
 
                 <div id="alertArea"></div>
 
-                <!-- Profile Header -->
-                <div class="profile-header">
-                    <div class="profile-picture-section">
-                        <div class="profile-picture" id="profilePicture">
-                            <span id="profileInitial">U</span>
-                        </div>
-                        <input type="file" id="photoInput" accept="image/*" style="display: none;">
-                        <button class="upload-btn" onclick="document.getElementById('photoInput').click()">📷</button>
+                <!-- Profile Hero -->
+                <div class="profile-hero-card">
+                    <div style="position:relative;">
+                        <div class="profile-pic-circle" id="profilePicture"><span id="profileInitial">U</span></div>
+                        <div class="profile-upload-btn" onclick="document.getElementById('photoInput').click()"
+                            title="Change photo">📷</div>
+                        <input type="file" id="photoInput" accept="image/*" style="display:none;">
                     </div>
-                    <div class="profile-info">
-                        <h2 class="profile-name" id="profileName">User Name</h2>
-                        <p class="profile-email" id="profileEmail">user@email.com</p>
-                        <span class="profile-role" id="profileRole">Faculty User</span>
-                        <button class="delete-photo-btn" id="deletePhotoBtn" style="display: none;">🗑️ Remove
-                            Photo</button>
+                    <div class="profile-hero-meta">
+                        <h2 id="profileName">Loading...</h2>
+                        <p id="profileEmail">loading@email.com</p>
+                        <p id="profileDept">University Faculty</p>
+                        <span class="role-pill" id="profileRole">Faculty Member</span>
+                        <div class="profile-hero-stats">
+                            <div class="ph-stat">
+                                <div class="ph-stat-value" id="statTotal">0</div>
+                                <div class="ph-stat-label">Total Pubs</div>
+                            </div>
+                            <div style="width:1px;background:var(--border-color);align-self:stretch;"></div>
+                            <div class="ph-stat">
+                                <div class="ph-stat-value" id="statThisYear">0</div>
+                                <div class="ph-stat-label">This Year</div>
+                            </div>
+                            <div style="width:1px;background:var(--border-color);align-self:stretch;"></div>
+                            <div class="ph-stat">
+                                <div class="ph-stat-value" id="statJournals">0</div>
+                                <div class="ph-stat-label">Journals</div>
+                            </div>
+                            <div style="width:1px;background:var(--border-color);align-self:stretch;"></div>
+                            <div class="ph-stat">
+                                <div class="ph-stat-value" id="statJoined">—</div>
+                                <div class="ph-stat-label">Joined</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Profile Form -->
-                <div class="profile-form-section">
-                    <h2 class="section-title">Personal Information</h2>
-                    <form id="profileForm">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Full Name *</label>
-                                <input type="text" class="form-input" id="nameInput" required>
+                <div class="profile-grid">
+                    <!-- LEFT Column -->
+                    <div>
+                        <!-- Academic Information -->
+                        <div class="profile-section-card">
+                            <h3>
+                                🎓 Academic Information
+                                <button class="section-edit-btn" onclick="openEditModal()">✏️ Edit Profile</button>
+                            </h3>
+                            <!-- Research Areas -->
+                            <label
+                                style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;display:block;">Research
+                                Areas</label>
+                            <div class="area-tags" id="researchAreas">
+                                <span style="color:var(--text-muted);font-size:0.8rem;font-style:italic;">No research
+                                    areas added yet</span>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Email *</label>
-                                <input type="email" class="form-input" id="emailInput" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Department</label>
-                                <input type="text" class="form-input" id="departmentInput">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Phone</label>
-                                <input type="tel" class="form-input" id="phoneInput">
+                            <!-- Academic Links -->
+                            <div id="academicLinks">
+                                <div class="academic-link">
+                                    <span class="academic-link-icon">🔗</span>
+                                    <span class="academic-link-label">Google Scholar</span>
+                                    <span id="scholarLink" style="color:var(--text-muted);font-size:0.82rem;">Not
+                                        set</span>
+                                </div>
+                                <div class="academic-link">
+                                    <span class="academic-link-icon">🟢</span>
+                                    <span class="academic-link-label">ORCID ID</span>
+                                    <span id="orcidId" style="color:var(--text-muted);font-size:0.82rem;">Not set</span>
+                                </div>
+                                <div class="academic-link">
+                                    <span class="academic-link-icon">📊</span>
+                                    <span class="academic-link-label">Scopus ID</span>
+                                    <span id="scopusId" style="color:var(--text-muted);font-size:0.82rem;">Not
+                                        set</span>
+                                </div>
+                                <div class="academic-link">
+                                    <span class="academic-link-icon">🌐</span>
+                                    <span class="academic-link-label">Website</span>
+                                    <span id="website" style="color:var(--text-muted);font-size:0.82rem;">Not set</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Bio</label>
-                            <textarea class="form-input" id="bioInput" rows="4"
-                                placeholder="Tell us about yourself..."></textarea>
-                        </div>
-                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-                            <button type="button" class="btn btn-secondary" onclick="loadProfile()">Cancel</button>
-                            <button type="submit" class="btn btn-success">
-                                <span id="saveButtonText">💾 Save Changes</span>
-                                <span id="saveSpinner" class="spinner hidden"></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
 
-                <!-- Security Settings -->
-                <div class="profile-form-section" style="margin-top: 2rem;">
-                    <h2 class="section-title">🔒 Security Settings</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Change your password to keep your
-                        account secure</p>
-                    <form id="passwordForm">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Current Password *</label>
-                                <input type="password" class="form-input" id="currentPasswordInput" required>
+                        <!-- Security Settings -->
+                        <div class="profile-section-card">
+                            <h3>🛡️ Security Settings</h3>
+                            <div class="security-row">
+                                <div class="security-row-label">🔑 Change Password</div>
+                                <label class="mini-toggle">
+                                    <input type="checkbox"
+                                        onchange="if(this.checked){openChangePwdModal();this.checked=false;}">
+                                    <span class="mini-slider"></span>
+                                </label>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">New Password *</label>
-                                <input type="password" class="form-input" id="newPasswordInput" required minlength="6">
-                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                                    Minimum 6 characters
-                                </p>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Confirm New Password *</label>
-                                <input type="password" class="form-input" id="confirmPasswordInput" required
-                                    minlength="6">
+                            <div class="security-row">
+                                <div class="security-row-label">📱 Two-Factor Authentication</div>
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <span style="font-size:0.75rem;color:var(--text-muted);" id="tfa-status">Off</span>
+                                    <label class="mini-toggle">
+                                        <input type="checkbox" id="tfaToggle" onchange="toggleTFA(this)">
+                                        <span class="mini-slider"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-                            <button type="button" class="btn btn-secondary"
-                                onclick="document.getElementById('passwordForm').reset()">Clear</button>
-                            <button type="submit" class="btn btn-primary">
-                                <span id="changePasswordButtonText">🔑 Change Password</span>
-                                <span id="changePasswordSpinner" class="spinner hidden"></span>
-                            </button>
+                    </div>
+
+                    <!-- RIGHT Column -->
+                    <div>
+                        <!-- Publications Summary -->
+                        <div class="profile-section-card">
+                            <h3>📋 Publications Summary</h3>
+                            <div class="pub-summary-chips">
+                                <div class="pub-sum-chip green">
+                                    <div class="num" id="chipTotal">0</div>
+                                    <div class="lbl">Published</div>
+                                </div>
+                                <div class="pub-sum-chip yellow">
+                                    <div class="num" id="chipReview">0</div>
+                                    <div class="lbl">In Review</div>
+                                </div>
+                                <div class="pub-sum-chip red">
+                                    <div class="num" id="chipRejected">0</div>
+                                    <div class="lbl">Rejected</div>
+                                </div>
+                            </div>
+                            <!-- Mini bar chart -->
+                            <div class="mini-bar-chart-wrap">
+                                <div
+                                    style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">
+                                    By Year</div>
+                                <div id="profileBarChart"
+                                    style="display:flex;align-items:flex-end;gap:4px;height:70px;">
+                                    <div
+                                        style="color:var(--text-muted);font-size:0.78rem;width:100%;text-align:center;align-self:center;">
+                                        Loading...</div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
+
+                        <!-- Personal Information (display only) -->
+                        <div class="profile-section-card">
+                            <h3>
+                                👤 Personal Information
+                                <button class="section-edit-btn" onclick="openEditModal()">✏️ Edit</button>
+                            </h3>
+                            <div class="academic-link">
+                                <span class="academic-link-icon">👤</span>
+                                <span class="academic-link-label">Full Name</span>
+                                <span id="infoName" style="font-size:0.83rem;color:var(--text-secondary);">—</span>
+                            </div>
+                            <div class="academic-link">
+                                <span class="academic-link-icon">✉️</span>
+                                <span class="academic-link-label">Email</span>
+                                <span id="infoEmail" style="font-size:0.83rem;color:var(--text-secondary);">—</span>
+                            </div>
+                            <div class="academic-link">
+                                <span class="academic-link-icon">🏛️</span>
+                                <span class="academic-link-label">Department</span>
+                                <span id="infoDept" style="font-size:0.83rem;color:var(--text-secondary);">—</span>
+                            </div>
+                            <div class="academic-link">
+                                <span class="academic-link-icon">📞</span>
+                                <span class="academic-link-label">Phone</span>
+                                <span id="infoPhone" style="font-size:0.83rem;color:var(--text-secondary);">—</span>
+                            </div>
+                            <div style="margin-top:0.75rem;" id="bioSection" class="hidden">
+                                <div
+                                    style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">
+                                    About</div>
+                                <div id="infoBio"
+                                    style="font-size:0.83rem;color:var(--text-secondary);line-height:1.5;"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <script src="js/auth.js"></script>
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">✏️ Edit Profile</h2>
+                <button class="icon-btn" onclick="closeModal('editProfileModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="editAlert"></div>
+                <form id="profileForm">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                                class="form-input" id="nameInput" required></div>
+                        <div class="form-group"><label class="form-label">Email *</label><input type="email"
+                                class="form-input" id="emailInput" required></div>
+                        <div class="form-group"><label class="form-label">Department</label><input type="text"
+                                class="form-input" id="departmentInput"></div>
+                        <div class="form-group"><label class="form-label">Designation</label><input type="text"
+                                class="form-input" id="designationInput" placeholder="e.g. Assistant Professor"></div>
+                        <div class="form-group"><label class="form-label">Years of Experience</label><input
+                                type="number" class="form-input" id="experienceInput" placeholder="e.g. 8" min="0"
+                                max="60"></div>
+                        <div class="form-group"><label class="form-label">ORCID ID</label><input type="text"
+                                class="form-input" id="orcidInput" placeholder="0000-0000-0000-0000"></div>
+                        <div class="form-group"><label class="form-label">Google Scholar URL</label><input type="url"
+                                class="form-input" id="scholarInput" placeholder="https://scholar.google.com/..."></div>
+                        <div class="form-group"><label class="form-label">Personal Website</label><input type="url"
+                                class="form-input" id="websiteInput" placeholder="https://..."></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Specialization / Research Areas</label><input
+                            type="text" class="form-input" id="researchAreasInput"
+                            placeholder="e.g. Machine Learning, Computer Vision, NLP"></div>
+                    <div class="form-group"><label class="form-label">Education / Qualifications</label><input
+                            type="text" class="form-input" id="educationInput"
+                            placeholder="e.g. Ph.D. (Computer Science) - IIT Bombay, 2018"></div>
+                    <div class="form-group"><label class="form-label">Bio</label><textarea class="form-input"
+                            id="bioInput" rows="3" placeholder="Tell us about yourself..."></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProfile()">
+                    <span id="saveProfileText">💾 Save Changes</span>
+                    <span id="saveProfileSpinner" class="spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePwdModal">
+        <div class="modal-content" style="max-width:440px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔑 Change Password</h2>
+                <button class="icon-btn" onclick="closeModal('changePwdModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="pwdAlert"></div>
+                <div class="form-group"><label class="form-label">Current Password *</label><input type="password"
+                        class="form-input" id="curPwd" required></div>
+                <div class="form-group"><label class="form-label">New Password *</label><input type="password"
+                        class="form-input" id="newPwd" required minlength="6"></div>
+                <div class="form-group"><label class="form-label">Confirm New Password *</label><input type="password"
+                        class="form-input" id="confPwd" required minlength="6"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('changePwdModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="changePassword()">
+                    <span id="pwdBtnText">Change Password</span>
+                    <span id="pwdBtnSpinner" class="spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = window.API_URL || 'http://localhost:3000/api';
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-
         if (!token) window.location.href = 'index.html';
-
         let currentProfile = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadProfile();
-
-            // Show admin menu if needed
-            if (user.role === 'super_admin') {
-                document.getElementById('adminMenuItem').style.display = 'block';
-            }
-
-            document.getElementById('profileForm').addEventListener('submit', saveProfile);
-            document.getElementById('passwordForm').addEventListener('submit', changePassword);
-            document.getElementById('photoInput').addEventListener('change', uploadPhoto);
-            document.getElementById('deletePhotoBtn').addEventListener('click', deletePhoto);
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('sidebarAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            if (user.role === 'super_admin') document.getElementById('adminMenuItem').style.display = 'block';
             document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('photoInput').addEventListener('change', uploadPhoto);
+            loadProfile();
         });
 
         async function loadProfile() {
             try {
-                const response = await fetch(`${API_URL}/profile`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const r = await fetch(`${API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error();
+                const res = await r.json();
+                currentProfile = res.data;
+                updateUI();
+                loadPublicationStats();
+            } catch (e) { showAlert('Failed to load profile', 'error'); }
+        }
 
-                if (!response.ok) throw new Error('Failed to load profile');
-
-                const result = await response.json();
-                currentProfile = result.data;
-
-                // Update form
-                document.getElementById('nameInput').value = currentProfile.name || '';
-                document.getElementById('emailInput').value = currentProfile.email || '';
-                document.getElementById('departmentInput').value = currentProfile.department || '';
-                document.getElementById('phoneInput').value = currentProfile.phone || '';
-                document.getElementById('bioInput').value = currentProfile.bio || '';
-
-                // Update profile header
-                document.getElementById('profileName').textContent = currentProfile.name;
-                document.getElementById('profileEmail').textContent = currentProfile.email;
-                document.getElementById('profileRole').textContent = getRoleDisplayName(currentProfile.role);
-
-                // Update profile picture
-                updateProfilePicture(currentProfile.profilePicture);
-
-                // Update sidebar
-                document.getElementById('userName').textContent = currentProfile.name;
-                document.getElementById('userEmail').textContent = currentProfile.email;
-
-            } catch (error) {
-                console.error('Error loading profile:', error);
-                showAlert('Failed to load profile', 'error');
+        function updateUI() {
+            const p = currentProfile;
+            if (!p) return;
+            // Header
+            document.getElementById('userName').textContent = p.name || 'User';
+            document.getElementById('sidebarAvatar').textContent = (p.name || 'U').charAt(0).toUpperCase();
+            // Hero
+            document.getElementById('profileName').textContent = p.name || '—';
+            document.getElementById('profileEmail').textContent = p.email || '—';
+            document.getElementById('profileDept').textContent = p.department || 'University Faculty';
+            document.getElementById('profileRole').textContent = getRoleLabel(p.role || user.role);
+            document.getElementById('profileInitial').textContent = (p.name || 'U').charAt(0).toUpperCase();
+            if (p.createdAt) document.getElementById('statJoined').textContent = new Date(p.createdAt).getFullYear();
+            // Personal info section
+            document.getElementById('infoName').textContent = p.name || '—';
+            document.getElementById('infoEmail').textContent = p.email || '—';
+            document.getElementById('infoDept').textContent = p.department || '—';
+            document.getElementById('infoPhone').textContent = p.phone || '—';
+            if (p.bio) {
+                document.getElementById('infoBio').textContent = p.bio;
+                document.getElementById('bioSection').classList.remove('hidden');
+            }
+            // Profile picture
+            if (p.profilePicture) {
+                document.getElementById('profilePicture').innerHTML = `<img src="${p.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                document.getElementById('sidebarAvatar').innerHTML = `<img src="${p.profilePicture}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            }
+            // Research areas
+            if (p.researchAreas && p.researchAreas.length > 0) {
+                const areas = Array.isArray(p.researchAreas) ? p.researchAreas : p.researchAreas.split(',').map(s => s.trim()).filter(Boolean);
+                document.getElementById('researchAreas').innerHTML = areas.map(a => `<span class="area-tag">${escHtml(a)}</span>`).join('') + `<button class="area-tag-add" onclick="openEditModal()">+ Add</button>`;
+            }
+            // Academic links
+            if (p.googleScholar || p.scholarUrl) {
+                const url = p.googleScholar || p.scholarUrl;
+                document.getElementById('scholarLink').innerHTML = `<a href="${url}" target="_blank">${url.substring(0, 40)}...</a>`;
+            }
+            if (p.orcidId) document.getElementById('orcidId').textContent = p.orcidId;
+            if (p.scopusId) document.getElementById('scopusId').textContent = p.scopusId;
+            if (p.website || p.personalWebsite) {
+                const url = p.website || p.personalWebsite;
+                document.getElementById('website').innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
             }
         }
 
-        function updateProfilePicture(pictureUrl) {
-            const profilePic = document.getElementById('profilePicture');
-            const sidebarAvatar = document.getElementById('sidebarAvatar');
-            const deleteBtn = document.getElementById('deletePhotoBtn');
-            const initial = currentProfile.name?.charAt(0).toUpperCase() || 'U';
+        async function loadPublicationStats() {
+            try {
+                const r = await fetch(`${API_URL}/publications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) return;
+                const { publications = [] } = await r.json();
+                const total = publications.length;
+                const curYear = new Date().getFullYear();
+                const thisYear = publications.filter(p => p.year === curYear).length;
+                const journals = new Set(publications.map(p => (p.journalConference || '').toLowerCase().trim()).filter(Boolean)).size;
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statThisYear').textContent = thisYear;
+                document.getElementById('statJournals').textContent = journals;
+                document.getElementById('chipTotal').textContent = total;
+                document.getElementById('chipReview').textContent = thisYear; // approximate
+                document.getElementById('chipRejected').textContent = 0;
+                // Bar chart
+                const byYear = {};
+                publications.forEach(p => { if (p.year) byYear[p.year] = (byYear[p.year] || 0) + 1; });
+                const years = Object.keys(byYear).sort().slice(-6);
+                const chart = document.getElementById('profileBarChart');
+                if (years.length === 0) { chart.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;width:100%;text-align:center;">No data</div>'; return; }
+                const maxV = Math.max(...years.map(y => byYear[y]), 1);
+                chart.innerHTML = years.map((y, i) => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+          <div style="background:${i === years.length - 1 ? 'var(--blue-600)' : 'var(--blue-200)'};border-radius:3px 3px 0 0;width:100%;height:${Math.max(5, Math.round((byYear[y] / maxV) * 62))}px;" title="${byYear[y]} in ${y}"></div>
+          <div style="font-size:0.58rem;color:var(--text-muted)">${y}</div>
+        </div>`).join('');
+            } catch (e) { }
+        }
 
-            if (pictureUrl) {
-                profilePic.innerHTML = `<img src="${pictureUrl}" alt="Profile">`;
-                sidebarAvatar.innerHTML = `<img src="${pictureUrl}" alt="Profile" 
-                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-                deleteBtn.style.display = 'inline-block';
-            } else {
-                document.getElementById('profileInitial').textContent = initial;
-                sidebarAvatar.textContent = initial;
-                deleteBtn.style.display = 'none';
-            }
+        function openEditModal() {
+            const p = currentProfile || {};
+            document.getElementById('nameInput').value = p.name || '';
+            document.getElementById('emailInput').value = p.email || '';
+            document.getElementById('departmentInput').value = p.department || '';
+            document.getElementById('designationInput').value = p.designation || '';
+            document.getElementById('experienceInput').value = p.yearsOfExperience || '';
+            document.getElementById('orcidInput').value = p.orcid || p.orcidId || '';
+            document.getElementById('scholarInput').value = p.googleScholar || p.scholarUrl || '';
+            document.getElementById('websiteInput').value = p.website || p.personalWebsite || '';
+            const areas = Array.isArray(p.researchAreas) ? p.researchAreas.join(', ') : (p.specialization || p.researchAreas || '');
+            document.getElementById('researchAreasInput').value = areas;
+            document.getElementById('educationInput').value = p.education || '';
+            document.getElementById('bioInput').value = p.bio || '';
+            document.getElementById('editAlert').innerHTML = '';
+            document.getElementById('editProfileModal').classList.add('open');
+        }
+
+        async function saveProfile() {
+            const btn = document.getElementById('saveProfileText'); const sp = document.getElementById('saveProfileSpinner');
+            btn.classList.add('hidden'); sp.classList.remove('hidden');
+            const areas = document.getElementById('researchAreasInput').value.split(',').map(s => s.trim()).filter(Boolean);
+            try {
+                const r = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        name: document.getElementById('nameInput').value,
+                        email: document.getElementById('emailInput').value,
+                        department: document.getElementById('departmentInput').value,
+                        designation: document.getElementById('designationInput').value,
+                        yearsOfExperience: document.getElementById('experienceInput').value ? parseInt(document.getElementById('experienceInput').value) : null,
+                        orcid: document.getElementById('orcidInput').value,
+                        googleScholar: document.getElementById('scholarInput').value,
+                        website: document.getElementById('websiteInput').value,
+                        specialization: document.getElementById('researchAreasInput').value,
+                        education: document.getElementById('educationInput').value,
+                        bio: document.getElementById('bioInput').value
+                    })
+                });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message);
+                showAlert('Profile updated successfully!', 'success');
+                closeModal('editProfileModal');
+                user.name = res.data.name; localStorage.setItem('user', JSON.stringify(user));
+                currentProfile = res.data;
+                updateUI();
+            } catch (e) {
+                document.getElementById('editAlert').innerHTML = `<div class="alert alert-error">${e.message || 'Failed to update'}</div>`;
+            } finally { btn.classList.remove('hidden'); sp.classList.add('hidden'); }
         }
 
         async function uploadPhoto(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // Validate file size
-            if (file.size > 5 * 1024 * 1024) {
-                showAlert('File size must be less than 5MB', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('profilePicture', file);
-
+            const file = e.target.files[0]; if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { showAlert('File must be < 5MB', 'error'); return; }
+            const fd = new FormData(); fd.append('profilePicture', file);
             try {
-                const response = await fetch(`${API_URL}/profile/picture`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error('Upload failed');
-
-                const result = await response.json();
-                showAlert(result.message, 'success');
-                updateProfilePicture(result.data.profilePicture);
-                currentProfile.profilePicture = result.data.profilePicture;
-
-            } catch (error) {
-                console.error('Upload error:', error);
-                showAlert('Failed to upload photo', 'error');
-            }
-
-            e.target.value = ''; // Reset input
+                const r = await fetch(`${API_URL}/profile/picture`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+                if (!r.ok) throw new Error();
+                const res = await r.json();
+                showAlert('Photo updated!', 'success');
+                currentProfile.profilePicture = res.data.profilePicture;
+                updateUI();
+            } catch (e) { showAlert('Failed to upload photo', 'error'); }
+            e.target.value = '';
         }
 
-        async function deletePhoto() {
-            if (!confirm('Are you sure you want to remove your profile picture?')) return;
+        function openChangePwdModal() {
+            document.getElementById('curPwd').value = '';
+            document.getElementById('newPwd').value = '';
+            document.getElementById('confPwd').value = '';
+            document.getElementById('pwdAlert').innerHTML = '';
+            document.getElementById('changePwdModal').classList.add('open');
+        }
 
+        async function changePassword() {
+            const cur = document.getElementById('curPwd').value;
+            const newP = document.getElementById('newPwd').value;
+            const conf = document.getElementById('confPwd').value;
+            if (newP !== conf) { document.getElementById('pwdAlert').innerHTML = '<div class="alert alert-error">Passwords do not match</div>'; return; }
+            if (newP.length < 6) { document.getElementById('pwdAlert').innerHTML = '<div class="alert alert-error">Min 6 characters</div>'; return; }
+            const btn = document.getElementById('pwdBtnText'); const sp = document.getElementById('pwdBtnSpinner');
+            btn.classList.add('hidden'); sp.classList.remove('hidden');
             try {
-                const response = await fetch(`${API_URL}/profile/picture`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error('Delete failed');
-
-                const result = await response.json();
-                showAlert(result.message, 'success');
-                updateProfilePicture(null);
-                currentProfile.profilePicture = '';
-
-            } catch (error) {
-                console.error('Delete error:', error);
-                showAlert('Failed to delete photo', 'error');
-            }
+                const r = await fetch(`${API_URL}/profile/password`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ currentPassword: cur, newPassword: newP }) });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message);
+                showAlert('Password changed!', 'success');
+                closeModal('changePwdModal');
+            } catch (e) { document.getElementById('pwdAlert').innerHTML = `<div class="alert alert-error">${e.message || 'Failed'}</div>`; }
+            finally { btn.classList.remove('hidden'); sp.classList.add('hidden'); }
         }
 
-        async function saveProfile(e) {
-            e.preventDefault();
-
-            const buttonText = document.getElementById('saveButtonText');
-            const spinner = document.getElementById('saveSpinner');
-
-            buttonText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-
-            try {
-                const profileData = {
-                    name: document.getElementById('nameInput').value,
-                    email: document.getElementById('emailInput').value,
-                    department: document.getElementById('departmentInput').value,
-                    phone: document.getElementById('phoneInput').value,
-                    bio: document.getElementById('bioInput').value
-                };
-
-                const response = await fetch(`${API_URL}/profile`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(profileData)
-                });
-
-                if (!response.ok) throw new Error('Update failed');
-
-                const result = await response.json();
-                showAlert(result.message, 'success');
-
-                // Update local storage
-                user.name = result.data.name;
-                user.email = result.data.email;
-                localStorage.setItem('user', JSON.stringify(user));
-
-                await loadProfile();
-
-            } catch (error) {
-                console.error('Save error:', error);
-                showAlert(error.message || 'Failed to update profile', 'error');
-            } finally {
-                buttonText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-            }
+        function toggleTFA(el) {
+            document.getElementById('tfa-status').textContent = el.checked ? 'On' : 'Off';
+            showAlert('Two-Factor Authentication ' + (el.checked ? 'enabled' : 'disabled') + ' (coming soon)', 'success');
+            if (el.checked) el.checked = false;
         }
 
-        async function changePassword(e) {
-            e.preventDefault();
-
-            const currentPassword = document.getElementById('currentPasswordInput').value;
-            const newPassword = document.getElementById('newPasswordInput').value;
-            const confirmPassword = document.getElementById('confirmPasswordInput').value;
-
-            // Validate passwords match
-            if (newPassword !== confirmPassword) {
-                showAlert('New passwords do not match', 'error');
-                return;
-            }
-
-            // Validate password length
-            if (newPassword.length < 6) {
-                showAlert('Password must be at least 6 characters long', 'error');
-                return;
-            }
-
-            const buttonText = document.getElementById('changePasswordButtonText');
-            const spinner = document.getElementById('changePasswordSpinner');
-
-            buttonText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-
-            try {
-                const response = await fetch(`${API_URL}/profile/password`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        currentPassword,
-                        newPassword
-                    })
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to change password');
-                }
-
-                showAlert(result.message || 'Password changed successfully', 'success');
-                document.getElementById('passwordForm').reset();
-
-            } catch (error) {
-                console.error('Change password error:', error);
-                showAlert(error.message || 'Failed to change password', 'error');
-            } finally {
-                buttonText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-            }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function getRoleLabel(role) { return role === 'super_admin' ? 'Super Administrator' : role === 'admin_viewer' ? 'Admin Viewer' : 'Faculty Member'; }
+        function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function showAlert(msg, type) {
+            const el = document.getElementById('alertArea');
+            const cls = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-error' : 'alert-info';
+            const div = document.createElement('div'); div.className = `alert ${cls}`; div.textContent = msg; el.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 4000);
         }
-
-        function getRoleDisplayName(role) {
-            const roleNames = {
-                'user': 'Faculty User',
-                'super_admin': 'Super Administrator'
-            };
-            return roleNames[role] || role;
-        }
-
-        function showAlert(message, type = 'info') {
-            const alertArea = document.getElementById('alertArea');
-            const alertClass = type === 'success' ? 'alert-success' :
-                type === 'error' ? 'alert-error' : 'alert-info';
-
-            const alert = document.createElement('div');
-            alert.className = `alert ${alertClass}`;
-            alert.textContent = message;
-
-            alertArea.appendChild(alert);
-
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 300);
-            }, 4000);
-        }
-
         async function logout() {
-            try {
-                await fetch(`${API_URL}/auth/logout`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            try { await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }); } catch (e) { }
+            localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'index.html';
         }
     </script>
 </body>

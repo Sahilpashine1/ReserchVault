@@ -4,162 +4,508 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ResearchVault - Manage and analyze your research publications">
+  <meta name="description" content="ResearchVault - Sign in to manage your research publications">
   <title>Login | ResearchVault</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Forgot password modal ── */
+    .fp-step {
+      display: none;
+    }
+
+    .fp-step.active {
+      display: block;
+    }
+
+    .reset-code-box {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 2px solid var(--blue-400);
+      border-radius: 12px;
+      padding: 1.1rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .reset-code-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      color: var(--blue-700);
+      font-family: 'Courier New', monospace;
+    }
+
+    .reset-code-note {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+    }
+
+    .fp-step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .fp-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .fp-dot.active {
+      background: var(--blue-600);
+    }
+
+    .fp-dot.done {
+      background: var(--success);
+    }
+
+    .success-icon {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── OTP Verification Panel ── */
+    .otp-verify-banner {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 2px solid #93c5fd;
+      border-radius: 14px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .otp-verify-banner .otp-email {
+      font-weight: 700;
+      color: #1d4ed8;
+      font-size: 0.88rem;
+      word-break: break-all;
+    }
+
+    .otp-input-big {
+      font-size: 1.6rem !important;
+      letter-spacing: 0.5em;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      font-weight: 800;
+      color: #1d4ed8;
+    }
+
+    .otp-resend-row {
+      text-align: center;
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .otp-resend-row button {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 0.82rem;
+      padding: 0;
+    }
+
+    .otp-resend-row button:disabled {
+      color: #94a3b8;
+      text-decoration: none;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="login-container">
+  <div class="login-page">
     <div class="login-card">
-      <!-- Login Form -->
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <svg viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="#2563eb" />
+          <path d="M13 22L17.5 26.5L27 16" stroke="white" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span class="login-logo-text">Research<span>Vault</span></span>
+      </div>
+
+      <!-- Heading -->
+      <div class="login-heading">
+        <h2>Welcome to ResearchVault.</h2>
+        <p>Please sign in to continue.</p>
+      </div>
+
+      <!-- Alerts -->
+      <div id="loginAlert"></div>
+      <div id="registerAlert"></div>
+
+      <!-- ═══ LOGIN FORM ═══ -->
       <div id="loginForm" class="auth-form">
-        <div class="login-header">
-          <h1>🔬 ResearchVault</h1>
-          <p>Manage & Query Your Research</p>
+        <!-- Role Selector -->
+        <div class="role-selector" id="roleSelector">
+          <div class="role-option selected" data-role="faculty" onclick="selectRole(this)">
+            <div class="role-option-icon">👤</div>
+            <span class="role-option-label">Faculty Member</span>
+            <span class="role-check">✔</span>
+          </div>
+          <div class="role-option" data-role="admin" onclick="selectRole(this)">
+            <div class="role-option-icon">🛡️</div>
+            <span class="role-option-label">Admin</span>
+            <span class="role-check">✔</span>
+          </div>
         </div>
-
-        <div id="loginAlert"></div>
-
         <form id="loginFormElement">
-          <div class="form-group">
-            <label class="form-label" for="loginEmail">Email Address</label>
-            <input type="email" id="loginEmail" class="form-input" placeholder="your.email@university.edu" required>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">✉️</span>
+            <input type="email" id="loginEmail" class="login-input" placeholder="jdoe@university.edu" required
+              autocomplete="email">
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="loginPassword">Password</label>
-            <div style="position: relative;">
-              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password"
-                style="padding-right: 3rem;" required>
-              <span id="toggleLoginPassword" onclick="toggleLoginPasswordVisibility()"
-                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
-            </div>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">🔒</span>
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password" required
+              style="padding-right:2.5rem;">
+            <span onclick="togglePwd('loginPassword', this)"
+              style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:0.9rem;color:var(--text-muted);">👁️</span>
           </div>
-
-          <button type="submit" class="btn btn-primary">
+          <div class="login-row">
+            <label class="login-remember">
+              <input type="checkbox" id="rememberMe" style="accent-color:var(--blue-600);">Remember me
+            </label>
+            <a href="#" class="login-forgot" id="forgotPasswordLink">Forgot password?</a>
+          </div>
+          <button type="submit" class="login-btn">
             <span id="loginButtonText">Sign In</span>
             <span id="loginSpinner" class="spinner hidden"></span>
           </button>
         </form>
-
-        <div class="auth-toggle">
-          Don't have an account?
-          <a href="#" id="showRegister">Create one now</a>
-        </div>
-
-        <div class="auth-toggle" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
-          <small style="color: #666;">
-            🔐 Administrator?
-            <a href="admin-login.html" style="color: #667eea; font-weight: 600;">Admin Login</a>
-          </small>
-        </div>
+        <div class="login-link">Need an account? <a href="#" id="showRegister">Sign up</a></div>
       </div>
 
-      <!-- Register Form -->
+      <!-- ═══ REGISTER FORM ═══ -->
       <div id="registerForm" class="auth-form hidden">
-        <div class="login-header">
-          <h1>🔬 Create Account</h1>
-          <p>Join ResearchVault</p>
-        </div>
-
-        <div id="registerAlert"></div>
-
         <form id="registerFormElement">
-          <div class="form-group">
-            <label class="form-label" for="registerName">Full Name</label>
-            <input type="text" id="registerName" class="form-input" placeholder="Dr. John Smith" required>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">👤</span>
+            <input type="text" id="registerName" class="login-input" placeholder="Dr. John Smith" required>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="registerEmail">Email Address</label>
-            <input type="email" id="registerEmail" class="form-input" placeholder="your.email@university.edu" required>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">✉️</span>
+            <input type="email" id="registerEmail" class="login-input" placeholder="your.email@university.edu" required>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="registerDepartment">Department (Optional)</label>
-            <input type="text" id="registerDepartment" class="form-input" placeholder="Computer Science">
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">🏛️</span>
+            <input type="text" id="registerDepartment" class="login-input" placeholder="Department (Optional)">
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="registerPassword">Password</label>
-            <div style="position: relative;">
-              <input type="password" id="registerPassword" class="form-input" placeholder="Create a strong password"
-                style="padding-right: 3rem;" required minlength="6">
-              <span id="toggleRegisterPassword" onclick="toggleRegisterPasswordVisibility()"
-                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
-            </div>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">🔒</span>
+            <input type="password" id="registerPassword" class="login-input" placeholder="Create a strong password"
+              required minlength="6" style="padding-right:2.5rem;">
+            <span onclick="togglePwd('registerPassword', this)"
+              style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:0.9rem;color:var(--text-muted);">👁️</span>
           </div>
-
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="login-btn">
             <span id="registerButtonText">Create Account</span>
             <span id="registerSpinner" class="spinner hidden"></span>
           </button>
         </form>
-
-        <div class="auth-toggle">
-          Already have an account?
+        <div class="login-link" style="margin-top:0.75rem;">Already have an account?
           <a href="#" id="showLogin">Sign in here</a>
         </div>
+      </div>
+
+      <!-- ═══ OTP VERIFICATION PANEL ═══ -->
+      <!-- Shown after registration or when login blocked due to unverified email -->
+      <div id="otpForm" class="auth-form hidden">
+        <form id="otpFormElement">
+          <div id="otpAlert"></div>
+          <div class="otp-verify-banner">
+            <div style="font-size:1.7rem;margin-bottom:0.4rem;">📧</div>
+            <div style="font-size:0.85rem;color:#374151;margin-bottom:0.3rem;">We sent a 6-digit OTP to</div>
+            <div class="otp-email" id="otpEmailDisplay"></div>
+            <div style="font-size:0.75rem;color:#6b7280;margin-top:0.35rem;">
+              Check your inbox (and spam folder) · Valid for 10 minutes
+            </div>
+          </div>
+          <div class="login-input-wrapper">
+            <span class="login-input-icon">🔐</span>
+            <input type="text" id="otpInput" class="login-input otp-input-big" placeholder="000000" maxlength="6"
+              inputmode="numeric" autocomplete="one-time-code" required>
+          </div>
+          <button type="submit" class="login-btn">
+            <span id="otpButtonText">Verify OTP</span>
+            <span id="otpSpinner" class="spinner hidden"></span>
+          </button>
+        </form>
+        <div class="otp-resend-row">
+          Didn't receive it? <button id="resendOtpBtn" type="button">Resend OTP</button>
+        </div>
+        <div class="login-link" style="margin-top:0.75rem;text-align:center;">
+          <a href="#" id="backToLoginFromOtp">← Back to Sign In</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <div class="login-footer-logo">
+        <svg viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="#2563eb"
+            opacity="0.7" />
+          <path d="M13 22L17.5 26.5L27 16" stroke="white" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span class="login-footer-logo-text">ResearchVault</span>
+      </div>
+      <div class="login-footer-links">
+        <a href="#">Privacy Policy</a> &middot; <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FORGOT PASSWORD MODAL ===== -->
+  <div class="modal" id="forgotPasswordModal">
+    <div class="modal-content" style="max-width:400px;">
+      <div class="modal-header">
+        <h2 class="modal-title">🔑 Reset Password</h2>
+        <button class="icon-btn" onclick="closeForgotModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Step indicator -->
+        <div class="fp-step-indicator">
+          <div class="fp-dot active" id="dot1"></div>
+          <div style="width:30px;height:2px;background:var(--border-color);"></div>
+          <div class="fp-dot" id="dot2"></div>
+          <div style="width:30px;height:2px;background:var(--border-color);"></div>
+          <div class="fp-dot" id="dot3"></div>
+        </div>
+
+        <!-- STEP 1: Enter email -->
+        <div class="fp-step active" id="fpStep1">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem;text-align:center;">
+            Enter your registered email address. We'll send a 6-digit reset OTP to your inbox.
+          </p>
+          <div id="fpAlert1"></div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-input" id="fpEmail" placeholder="jdoe@university.edu" autocomplete="email">
+          </div>
+          <button class="btn btn-primary w-full" onclick="requestReset()" id="requestResetBtn">
+            <span id="requestResetText">Send Reset OTP</span>
+            <span id="requestResetSpinner" class="spinner hidden"></span>
+          </button>
+        </div>
+
+        <!-- STEP 2: Enter OTP + new password -->
+        <div class="fp-step" id="fpStep2">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.75rem;text-align:center;">
+            A 6-digit reset OTP has been sent to your email. Enter it below with your new password.
+          </p>
+          <div id="fpAlert2"></div>
+          <div class="form-group">
+            <label class="form-label">Reset OTP *</label>
+            <input type="text" class="form-input" id="fpToken" placeholder="Enter 6-digit OTP from email" maxlength="6"
+              inputmode="numeric" style="letter-spacing:0.2em;font-weight:700;font-size:1rem;text-align:center;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password *</label>
+            <div style="position:relative;">
+              <input type="password" class="form-input" id="fpNewPwd" placeholder="Min 6 characters" minlength="6"
+                style="padding-right:2.5rem;">
+              <span onclick="togglePwd('fpNewPwd', this)"
+                style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:0.9rem;color:var(--text-muted);">👁️</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Confirm New Password *</label>
+            <input type="password" class="form-input" id="fpConfirmPwd" placeholder="Repeat your new password"
+              minlength="6">
+          </div>
+          <button class="btn btn-primary w-full" onclick="submitReset()" id="submitResetBtn">
+            <span id="submitResetText">Reset Password</span>
+            <span id="submitResetSpinner" class="spinner hidden"></span>
+          </button>
+          <button class="btn btn-secondary w-full" style="margin-top:0.5rem;" onclick="goBackToStep1()">
+            ← Try a different email
+          </button>
+        </div>
+
+        <!-- STEP 3: Success -->
+        <div class="fp-step" id="fpStep3">
+          <div class="success-icon">✅</div>
+          <h3 style="text-align:center;font-size:1rem;font-weight:700;margin-bottom:0.5rem;">
+            Password Reset Successful!
+          </h3>
+          <p style="text-align:center;font-size:0.84rem;color:var(--text-light);margin-bottom:1.25rem;">
+            Your password has been updated. You can now sign in with your new password.
+          </p>
+          <button class="btn btn-primary w-full" onclick="closeForgotAndSetEmail()">
+            → Sign In Now
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    // Password visibility toggles
-    function toggleLoginPasswordVisibility() {
-      const passwordInput = document.getElementById('loginPassword');
-      const toggleIcon = document.getElementById('toggleLoginPassword');
+    const API_URL = window.API_URL || 'http://localhost:3000/api';
+    let fpCurrentStep = 1;
+    let fpUserEmail = '';
 
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.textContent = '🙈';
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.textContent = '👁️';
-      }
+    // ── Role selector ──
+    function selectRole(el) {
+      document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      if (el.dataset.role === 'admin') window.location.href = 'admin-login.html';
     }
 
-    function toggleRegisterPasswordVisibility() {
-      const passwordInput = document.getElementById('registerPassword');
-      const toggleIcon = document.getElementById('toggleRegisterPassword');
-
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.textContent = '🙈';
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.textContent = '👁️';
-      }
+    // ── Password visibility toggle ──
+    function togglePwd(id, icon) {
+      const inp = document.getElementById(id);
+      if (inp.type === 'password') { inp.type = 'text'; icon.textContent = '🙈'; }
+      else { inp.type = 'password'; icon.textContent = '👁️'; }
     }
 
-    // Add smooth animations on input focus
-    document.querySelectorAll('.form-input').forEach(input => {
-      input.addEventListener('focus', function () {
-        this.style.transform = 'translateY(-2px)';
-        this.style.transition = 'all 0.3s ease';
-      });
-
-      input.addEventListener('blur', function () {
-        this.style.transform = 'translateY(0)';
-      });
+    // ── Tab switching (duplicate listeners removed — auth.js handles these) ──
+    document.getElementById('showRegister').addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.remove('hidden');
+      document.getElementById('otpForm').classList.add('hidden');
+    });
+    document.getElementById('showLogin').addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('registerForm').classList.add('hidden');
+      document.getElementById('otpForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+    });
+    document.getElementById('backToLoginFromOtp').addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('otpForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
     });
 
-    // Add ripple effect to buttons
-    document.querySelectorAll('.btn-primary').forEach(button => {
-      button.addEventListener('click', function (e) {
-        const ripple = document.createElement('span');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(255, 255, 255, 0.6)';
-        ripple.style.width = ripple.style.height = '100px';
-        ripple.style.left = e.clientX - this.offsetLeft - 50 + 'px';
-        ripple.style.top = e.clientY - this.offsetTop - 50 + 'px';
-        ripple.style.animation = 'ripple 0.6s';
-        this.appendChild(ripple);
+    // ── Forgot password modal ──
+    document.getElementById('forgotPasswordLink').addEventListener('click', e => {
+      e.preventDefault();
+      openForgotModal();
+    });
 
-        setTimeout(() => ripple.remove(), 600);
+    function openForgotModal() {
+      fpCurrentStep = 1;
+      fpUserEmail = '';
+      document.getElementById('fpEmail').value = document.getElementById('loginEmail').value || '';
+      document.getElementById('fpToken').value = '';
+      document.getElementById('fpNewPwd').value = '';
+      document.getElementById('fpConfirmPwd').value = '';
+      document.getElementById('fpAlert1').innerHTML = '';
+      document.getElementById('fpAlert2').innerHTML = '';
+      showFpStep(1);
+      document.getElementById('forgotPasswordModal').classList.add('open');
+    }
+
+    function closeForgotModal() {
+      document.getElementById('forgotPasswordModal').classList.remove('open');
+    }
+
+    function closeForgotAndSetEmail() {
+      closeForgotModal();
+      if (fpUserEmail) document.getElementById('loginEmail').value = fpUserEmail;
+      document.getElementById('loginPassword').focus();
+    }
+
+    function showFpStep(step) {
+      fpCurrentStep = step;
+      document.querySelectorAll('.fp-step').forEach((el, i) => el.classList.toggle('active', i + 1 === step));
+      ['dot1', 'dot2', 'dot3'].forEach((id, i) => {
+        const dot = document.getElementById(id);
+        dot.className = 'fp-dot';
+        if (i + 1 < step) dot.classList.add('done');
+        else if (i + 1 === step) dot.classList.add('active');
       });
+    }
+
+    function goBackToStep1() {
+      document.getElementById('fpAlert1').innerHTML = '';
+      showFpStep(1);
+    }
+
+    // ── Step 1: Request reset OTP ──
+    async function requestReset() {
+      const email = document.getElementById('fpEmail').value.trim();
+      if (!email) {
+        document.getElementById('fpAlert1').innerHTML = '<div class="alert alert-error">Please enter your email address.</div>';
+        return;
+      }
+      const btn = document.getElementById('requestResetText');
+      const sp = document.getElementById('requestResetSpinner');
+      btn.classList.add('hidden'); sp.classList.remove('hidden');
+      document.getElementById('fpAlert1').innerHTML = '';
+
+      try {
+        const r = await fetch(`${API_URL}/auth/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const res = await r.json();
+        if (!r.ok) throw new Error(res.message);
+        fpUserEmail = email;
+        showFpStep(2);
+        document.getElementById('fpAlert2').innerHTML =
+          '<div class="alert alert-success" style="margin-bottom:0.75rem;">✅ OTP sent to your email! Check your inbox.</div>';
+      } catch (e) {
+        document.getElementById('fpAlert1').innerHTML =
+          `<div class="alert alert-error">${e.message || 'Failed to send OTP. Please try again.'}</div>`;
+      } finally {
+        btn.classList.remove('hidden'); sp.classList.add('hidden');
+      }
+    }
+
+    // ── Step 2: Submit new password ──
+    async function submitReset() {
+      const token = document.getElementById('fpToken').value.trim();
+      const newPwd = document.getElementById('fpNewPwd').value;
+      const confPwd = document.getElementById('fpConfirmPwd').value;
+      const alertEl = document.getElementById('fpAlert2');
+
+      if (!token) { alertEl.innerHTML = '<div class="alert alert-error">Please enter the OTP from your email.</div>'; return; }
+      if (!newPwd || newPwd.length < 6) { alertEl.innerHTML = '<div class="alert alert-error">Password must be at least 6 characters.</div>'; return; }
+      if (newPwd !== confPwd) { alertEl.innerHTML = '<div class="alert alert-error">Passwords do not match.</div>'; return; }
+
+      const btn = document.getElementById('submitResetText');
+      const sp = document.getElementById('submitResetSpinner');
+      btn.classList.add('hidden'); sp.classList.remove('hidden');
+      alertEl.innerHTML = '';
+
+      try {
+        const r = await fetch(`${API_URL}/auth/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: fpUserEmail, token, newPassword: newPwd })
+        });
+        const res = await r.json();
+        if (!r.ok) throw new Error(res.message);
+        showFpStep(3);
+      } catch (e) {
+        alertEl.innerHTML = `<div class="alert alert-error">${e.message || 'Failed to reset password. Please try again.'}</div>`;
+      } finally {
+        btn.classList.remove('hidden'); sp.classList.add('hidden');
+      }
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('forgotPasswordModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('forgotPasswordModal')) closeForgotModal();
     });
   </script>
   <script src="js/config.js"></script>

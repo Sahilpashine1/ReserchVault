@@ -67,7 +67,15 @@ router.get('/', auth, attachUser, async (req, res) => {
             role: req.user.role,
             isActive: req.user.isActive,
             lastLogin: req.user.lastLogin,
-            createdAt: req.user.createdAt
+            createdAt: req.user.createdAt,
+            // Academic fields
+            designation: req.user.designation,
+            specialization: req.user.specialization,
+            yearsOfExperience: req.user.yearsOfExperience,
+            education: req.user.education,
+            googleScholar: req.user.googleScholar || req.user.scholarUrl || '',
+            orcid: req.user.orcid || req.user.orcidId || '',
+            website: req.user.website || req.user.personalWebsite || ''
         };
 
         res.json({
@@ -86,7 +94,9 @@ router.get('/', auth, attachUser, async (req, res) => {
 // @access  Private
 router.put('/', auth, attachUser, async (req, res) => {
     try {
-        const { name, email, department, phone, bio } = req.body;
+        const { name, email, department, phone, bio,
+            designation, specialization, yearsOfExperience,
+            education, googleScholar, orcid, website } = req.body;
 
         const user = await User.findById(req.userId);
 
@@ -99,7 +109,6 @@ router.put('/', auth, attachUser, async (req, res) => {
         // Update fields
         if (name) user.name = name;
         if (email && email !== user.email) {
-            // Check if email is already taken
             const emailExists = await User.findOne({ email, _id: { $ne: user._id } });
             if (emailExists) {
                 return res.status(400).json({ message: 'Email already in use' });
@@ -109,6 +118,14 @@ router.put('/', auth, attachUser, async (req, res) => {
         if (department !== undefined) user.department = department;
         if (phone !== undefined) user.phone = phone;
         if (bio !== undefined) user.bio = bio;
+        // Academic fields
+        if (designation !== undefined) user.designation = designation;
+        if (specialization !== undefined) user.specialization = specialization;
+        if (yearsOfExperience !== undefined) user.yearsOfExperience = yearsOfExperience;
+        if (education !== undefined) user.education = education;
+        if (googleScholar !== undefined) user.googleScholar = googleScholar;
+        if (orcid !== undefined) user.orcid = orcid;
+        if (website !== undefined) user.website = website;
 
         await user.save();
 
@@ -142,7 +159,14 @@ router.put('/', auth, attachUser, async (req, res) => {
                 phone: user.phone,
                 bio: user.bio,
                 profilePicture: user.profilePicture,
-                role: user.role
+                role: user.role,
+                designation: user.designation,
+                specialization: user.specialization,
+                yearsOfExperience: user.yearsOfExperience,
+                education: user.education,
+                googleScholar: user.googleScholar,
+                orcid: user.orcid,
+                website: user.website
             }
         });
 

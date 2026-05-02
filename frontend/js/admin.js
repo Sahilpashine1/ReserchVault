@@ -4,7 +4,7 @@
  */
 
 // API URL
-window.API_URL = 'http://localhost:3000/api';
+window.API_URL = window.API_URL || 'http://localhost:3000/api';
 let currentUsers = [];
 let currentUserId = null;
 let isEditMode = false;
@@ -47,6 +47,15 @@ function checkAuthAndRole() {
         document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
     }
 
+    // Fetch profile picture for navbar
+    fetch(`${window.API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(res => {
+            if (res?.data?.profilePicture) {
+                document.getElementById('userAvatar').innerHTML = `<img src="${res.data.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            }
+        }).catch(() => {});
+
 
 }
 
@@ -66,6 +75,10 @@ function setupEventListeners() {
     const createUserBtn = document.getElementById('createUserBtn');
     if (createUserBtn) {
         createUserBtn.addEventListener('click', openCreateUserModal);
+    }
+    const createUserBtn2 = document.getElementById('createUserBtn2');
+    if (createUserBtn2) {
+        createUserBtn2.addEventListener('click', openCreateUserModal);
     }
 
     // User modal
@@ -112,6 +125,7 @@ function switchTab(tabName) {
         loadDetailedStats();
     }
 }
+
 
 /**
  * Load all users
@@ -248,7 +262,7 @@ function openCreateUserModal() {
     document.getElementById('userForm').reset();
     document.getElementById('passwordGroup').querySelector('p').style.display = 'none';
     document.getElementById('userPasswordInput').required = true;
-    document.getElementById('userModal').classList.add('active');
+    document.getElementById('userModal').classList.add('open');
 }
 
 /**
@@ -282,7 +296,7 @@ async function editUser(userId) {
         document.getElementById('userPasswordInput').required = false;
         document.getElementById('passwordGroup').querySelector('p').style.display = 'block';
 
-        document.getElementById('userModal').classList.add('active');
+        document.getElementById('userModal').classList.add('open');
 
     } catch (error) {
         console.error('Error loading user:', error);
@@ -294,7 +308,7 @@ async function editUser(userId) {
  * Close user modal
  */
 function closeUserModal() {
-    document.getElementById('userModal').classList.remove('active');
+    document.getElementById('userModal').classList.remove('open');
     document.getElementById('userForm').reset();
 }
 
@@ -368,14 +382,14 @@ function openRoleModal(userId) {
     document.getElementById('roleChangeUserEmail').textContent = user.email;
     document.getElementById('newRoleSelect').value = user.role;
     updateRolePermissions();
-    document.getElementById('roleModal').classList.add('active');
+    document.getElementById('roleModal').classList.add('open');
 }
 
 /**
  * Close role modal
  */
 function closeRoleModal() {
-    document.getElementById('roleModal').classList.remove('active');
+    document.getElementById('roleModal').classList.remove('open');
 }
 
 /**

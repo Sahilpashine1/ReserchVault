@@ -42,7 +42,7 @@ router.get('/users', auth, requireSuperAdmin, async (req, res) => {
         }
 
         const users = await User.find(query)
-            .select('-password')
+            .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpires')
             .sort({ createdAt: -1 });
 
         res.json({

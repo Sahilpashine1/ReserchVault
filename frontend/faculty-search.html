@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search Faculty Members and view their publications on ResearchVault">
+    <title>Faculty Search | ResearchVault</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/floating-chatbot.css">
+    <style>
+        html,
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        .main-area {
+            overflow-x: hidden;
+            min-width: 0;
+        }
+
+        .top-header {
+            overflow: hidden;
+        }
+
+        .page-content {
+            overflow-x: hidden;
+            min-width: 0;
+        }
+
+        /* ── Search Hero ── */
+        .search-hero {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 60%, #60a5fa 100%);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 1.75rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 50%;
+        }
+
+        .search-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: 40%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .hero-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-sub {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-bottom: 1.4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-search-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 640px;
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 0.9rem 1.1rem 0.9rem 3rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            outline: none;
+            transition: box-shadow 0.2s;
+        }
+
+        .hero-search-input:focus {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .hero-search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .hero-stat-label {
+            font-size: 0.73rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            display: flex;
+            gap: 0.65rem;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .result-count {
+            margin-left: auto;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Faculty Card Grid ── */
+        .faculty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.1rem;
+        }
+
+        .faculty-card {
+            background: white;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .faculty-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.1rem 1.2rem 0.85rem;
+        }
+
+        .faculty-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .faculty-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .faculty-name {
+            font-size: 0.97rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .faculty-dept {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .faculty-email {
+            font-size: 0.75rem;
+            color: #3b82f6;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 0;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .card-stat {
+            flex: 1;
+            padding: 0.6rem;
+            text-align: center;
+            border-right: 1px solid #f1f5f9;
+        }
+
+        .card-stat:last-child {
+            border-right: none;
+        }
+
+        .card-stat-num {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+
+        .card-stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .card-footer {
+            padding: 0.7rem 1.2rem;
+            background: #f8faff;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card-btn {
+            flex: 1;
+            padding: 0.45rem;
+            border-radius: 8px;
+            border: 1.5px solid;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .card-btn.view-profile {
+            background: white;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .card-btn.view-profile:hover {
+            background: #eff6ff;
+        }
+
+        .card-btn.view-pubs {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: white;
+        }
+
+        .card-btn.view-pubs:hover {
+            background: #1e40af;
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+        }
+
+        .empty-sub {
+            font-size: 0.85rem;
+        }
+
+        /* ── Faculty Profile Modal ── */
+        .profile-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+
+        .profile-modal.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .profile-modal-box {
+            background: white;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 780px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+            transform: translateY(20px);
+            transition: transform 0.25s;
+            overflow: hidden;
+        }
+
+        .profile-modal.open .profile-modal-box {
+            transform: translateY(0);
+        }
+
+        .pmodal-banner {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 2rem 2rem 1rem;
+            position: relative;
+        }
+
+        .pmodal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .pmodal-close:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .pmodal-avatar-big {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .pmodal-name {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .pmodal-dept {
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.2rem;
+        }
+
+        .pmodal-email {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.15rem;
+        }
+
+        .pmodal-stats-row {
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            margin-top: 1rem;
+            padding: 0.65rem 0;
+        }
+
+        .pmodal-stat {
+            flex: 1;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .pmodal-stat:last-child {
+            border-right: none;
+        }
+
+        .pmodal-stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .pmodal-stat-label {
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.75);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pmodal-body {
+            padding: 1.5rem;
+        }
+
+        .pmodal-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* ── Modal Tabs ── */
+        .pmodal-tabs {
+            display: flex;
+            gap: 0;
+            background: #f8faff;
+            border-bottom: 1.5px solid #e2e8f0;
+        }
+
+        .pmodal-tab {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            border: none;
+            background: transparent;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.18s;
+            border-bottom: 2.5px solid transparent;
+            margin-bottom: -1.5px;
+        }
+
+        .pmodal-tab:hover {
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+
+        .pmodal-tab.active {
+            color: #1d4ed8;
+            border-bottom-color: #1d4ed8;
+            background: white;
+        }
+
+        .pmodal-tab-panel {
+            display: none;
+        }
+
+        .pmodal-tab-panel.active {
+            display: block;
+        }
+
+        /* ── Info Grid ── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-card {
+            background: #f8faff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+        }
+
+        .info-card.full {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 0.69rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 0.87rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .info-value a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .info-na {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.82rem;
+        }
+
+        .pmodal-bio {
+            background: #f8faff;
+            border-left: 3px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        /* Publications mini list inside modal */
+        .pub-mini-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .pub-mini-item {
+            background: #f8faff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .pub-mini-item:hover {
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+
+        .pub-mini-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .pub-mini-meta {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .pub-mini-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .pub-mini-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.74rem;
+        }
+
+        .pub-mini-link:hover {
+            text-decoration: underline;
+        }
+
+        .pmodal-no-pubs {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .pub-search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .pub-search-input {
+            flex: 1;
+            padding: 0.5rem 0.85rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .pub-search-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            padding: 1.1rem;
+            animation: pulse 1.4s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .skel-line {
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── Pagination ── */
+        .pagination-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .pg-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.5rem;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            color: #374151;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pg-btn:hover:not(:disabled) {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .pg-btn.active {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: white;
+        }
+
+        .pg-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .pg-ellipsis {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 0 0.2rem;
+        }
+
+        .per-page-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .per-page-select {
+            padding: 0.32rem 0.5rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .per-page-select:focus {
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <a class="logo-brand" href="home.html">
+                    <svg class="logo-icon" viewBox="0 0 40 44" fill="none">
+                        <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="white"
+                            opacity="0.95" />
+                        <path d="M13 22L17.5 26.5L27 16" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="logo-text">Research<span>Vault</span></span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="home.html" class="nav-link"><span
+                                class="nav-icon">🏠</span><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link"><span
+                                class="nav-icon">📋</span><span>Faculty Publications</span></a></li>
+                    <li class="nav-item"><a href="faculty-search.html" class="nav-link active"><span
+                                class="nav-icon">🔍</span><span>Search Faculty</span></a></li>
+                    <li class="nav-item"><a href="profile.html" class="nav-link"><span
+                                class="nav-icon">👤</span><span>Profile</span></a></li>
+                    <li class="nav-item" id="adminMenuItem" style="display:none;"><a href="admin.html"
+                            class="nav-link"><span class="nav-icon">🔐</span><span>Admin Panel</span></a></li>
+                    <li class="nav-item"><a href="settings.html" class="nav-link"><span
+                                class="nav-icon">⚙️</span><span>Settings</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <div class="main-area">
+            <header class="top-header">
+                <div class="header-spacer"></div>
+                <div class="header-actions">
+                    <div class="header-bell">🔔</div>
+                    <div class="header-user">
+                        <div class="header-avatar" id="userAvatar">U</div>
+                        <span class="header-user-name" id="userName">User</span>
+                    </div>
+                    <button class="logout-btn-header" id="logoutBtn">🚪 Logout</button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <!-- Search Hero -->
+                <div class="search-hero">
+                    <h1 class="hero-title">🔍 Search Faculty Members</h1>
+                    <p class="hero-sub">Find faculty members and explore their research publications</p>
+                    <div class="hero-search-wrap">
+                        <span class="hero-search-icon">🔍</span>
+                        <input type="text" class="hero-search-input" id="searchInput"
+                            placeholder="Search by name, department, or email..." autocomplete="off">
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-num" id="totalUsers">—</div>
+                            <div class="hero-stat-label">Faculty Members</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-num" id="totalPubs">—</div>
+                            <div class="hero-stat-label">Total Publications</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-num" id="totalDepts">—</div>
+                            <div class="hero-stat-label">Departments</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <button class="filter-chip active" id="filterAll" onclick="setFilter('all')">All</button>
+                    <button class="filter-chip" id="filterWithPubs" onclick="setFilter('with-pubs')">Has
+                        Publications</button>
+                    <span class="result-count" id="resultCount"></span>
+                </div>
+
+                <!-- Alert area -->
+                <div id="alertArea"></div>
+
+                <!-- Results Grid -->
+                <div id="facultyGrid" class="faculty-grid">
+                    <!-- Skeleton loaders -->
+                    <div class="skeleton-card">
+                        <div class="skel-line" style="height:12px;width:60%;"></div>
+                        <div class="skel-line" style="height:10px;width:40%;"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skel-line" style="height:12px;width:55%;"></div>
+                        <div class="skel-line" style="height:10px;width:45%;"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skel-line" style="height:12px;width:70%;"></div>
+                        <div class="skel-line" style="height:10px;width:35%;"></div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-wrap" id="paginationWrap" style="display:none;">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                    <div class="per-page-wrap">
+                        Show
+                        <select class="per-page-select" id="perPageSelect" onchange="changePerPage()">
+                            <option value="6">6</option>
+                            <option value="9" selected>9</option>
+                            <option value="12">12</option>
+                            <option value="24">24</option>
+                        </select>
+                        per page
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Faculty Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-box" id="profileModalBox">
+            <!-- Dynamic content injected here -->
+        </div>
+    </div>
+
+    <!-- Floating chatbot -->
+    <script src="js/floating-chatbot.js"></script>
+
+    <script src="js/config.js"></script>
+    <script>
+        const API = window.API_URL || 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'index.html';
+
+        let allFaculty = [], activeFilter = 'all', currentPage = 1, perPage = 9;
+        let displayList = []; // the current filtered list being paginated
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            
+            // Fetch profile picture for navbar
+            fetch(`${API}/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(r => r.ok ? r.json() : null)
+                .then(res => {
+                    if (res?.data?.profilePicture) {
+                        document.getElementById('userAvatar').innerHTML = `<img src="${res.data.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    }
+                }).catch(() => {});
+
+            if (user.role === 'super_admin') {
+                document.getElementById('adminMenuItem').style.display = 'block';
+            }
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.clear(); window.location.href = 'index.html';
+            });
+            document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 300));
+            loadAllFaculty();
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('profileModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('profileModal')) closeModal();
+        });
+
+        async function loadAllFaculty() {
+            try {
+                const r = await fetch(`${API}/users/search?q=`, { headers: { Authorization: `Bearer ${token}` } });
+                const d = await r.json();
+                allFaculty = d.data || [];
+                updateStats();
+                applyFilterAndRender();
+            } catch (e) {
+                document.getElementById('facultyGrid').innerHTML =
+                    `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load faculty</div><div class="empty-sub">Please refresh the page</div></div>`;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allFaculty.length;
+            const totalPubs = allFaculty.reduce((s, f) => s + f.publicationCount, 0);
+            document.getElementById('totalPubs').textContent = totalPubs;
+            const depts = new Set(allFaculty.map(f => f.department).filter(Boolean));
+            document.getElementById('totalDepts').textContent = depts.size;
+        }
+
+        async function handleSearch() {
+            const q = document.getElementById('searchInput').value.trim();
+            try {
+                const r = await fetch(`${API}/users/search?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } });
+                const d = await r.json();
+                allFaculty = d.data || [];
+                currentPage = 1;
+                applyFilterAndRender();
+            } catch (e) { /* no-op */ }
+        }
+
+        function setFilter(filter) {
+            activeFilter = filter;
+            document.getElementById('filterAll').classList.toggle('active', filter === 'all');
+            document.getElementById('filterWithPubs').classList.toggle('active', filter === 'with-pubs');
+            currentPage = 1;
+            applyFilterAndRender();
+        }
+
+        function filterFaculty(list) {
+            if (activeFilter === 'with-pubs') return list.filter(f => f.publicationCount > 0);
+            return list;
+        }
+
+        function changePerPage() {
+            perPage = parseInt(document.getElementById('perPageSelect').value);
+            currentPage = 1;
+            renderPage();
+        }
+
+        function applyFilterAndRender() {
+            displayList = filterFaculty(allFaculty);
+            currentPage = 1;
+            renderPage();
+        }
+
+        function renderPage() {
+            const grid = document.getElementById('facultyGrid');
+            const totalPages = Math.ceil(displayList.length / perPage);
+            const start = (currentPage - 1) * perPage;
+            const pageItems = displayList.slice(start, start + perPage);
+
+            // Update result count
+            document.getElementById('resultCount').textContent =
+                `${displayList.length} result${displayList.length !== 1 ? 's' : ''}`;
+
+            if (displayList.length === 0) {
+                grid.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1;">
+                    <div class="empty-icon">🔎</div>
+                    <div class="empty-title">No faculty found</div>
+                    <div class="empty-sub">Try a different name or department</div>
+                </div>`;
+                document.getElementById('paginationWrap').style.display = 'none';
+                return;
+            }
+
+            // Render cards for current page
+            grid.innerHTML = pageItems.map(f => {
+                const initials = f.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                const avatarColors = ['#1d4ed8', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
+                const color = avatarColors[f.name.charCodeAt(0) % avatarColors.length];
+                return `
+                <div class="faculty-card" id="card-${f.id}">
+                    <div class="card-header">
+                        <div class="faculty-avatar" style="background:linear-gradient(135deg,${color},${color}cc);">${f.profilePicture ? `<img src="${f.profilePicture}" alt="${escHtml(f.name)}" style="width:100%;height:100%;border-radius:14px;object-fit:cover;">` : initials}</div>
+                        <div class="faculty-info">
+                            <div class="faculty-name">${escHtml(f.name)}</div>
+                            <div class="faculty-dept">📚 ${escHtml(f.department)}</div>
+                            <div class="faculty-email">✉ ${escHtml(f.email)}</div>
+                        </div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="card-stat">
+                            <div class="card-stat-num">${f.publicationCount}</div>
+                            <div class="card-stat-label">Publications</div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="card-stat-num">${getRoleLabel(f.role)}</div>
+                            <div class="card-stat-label">Role</div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="card-stat-num">${f.memberSince ? new Date(f.memberSince).getFullYear() : '—'}</div>
+                            <div class="card-stat-label">Since</div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="card-btn view-profile" onclick="openProfileModal('${f.id}')">👤 Profile</button>
+                        <button class="card-btn view-pubs" onclick="openPublicationsModal('${f.id}')">📋 Publications (${f.publicationCount})</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Pagination bar
+            const wrap = document.getElementById('paginationWrap');
+            wrap.style.display = totalPages <= 1 && displayList.length <= perPage ? 'none' : 'flex';
+
+            const s = start + 1, e = Math.min(start + perPage, displayList.length);
+            document.getElementById('paginationInfo').textContent =
+                `Showing ${s}–${e} of ${displayList.length} members`;
+
+            renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            const ctrl = document.getElementById('paginationControls');
+            const pages = getPageNumbers(currentPage, totalPages);
+
+            ctrl.innerHTML =
+                // Prev button
+                `<button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#8249;</button>` +
+
+                // Page number buttons
+                pages.map(p =>
+                    p === '...' ?
+                        `<span class="pg-ellipsis">…</span>` :
+                        `<button class="pg-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`
+                ).join('') +
+
+                // Next button
+                `<button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&#8250;</button>`;
+        }
+
+        function getPageNumbers(current, total) {
+            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            const pages = [1];
+            if (current > 3) pages.push('...');
+            for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+            if (current < total - 2) pages.push('...');
+            pages.push(total);
+            return pages;
+        }
+
+        function goPage(p) {
+            const totalPages = Math.ceil(displayList.length / perPage);
+            if (p < 1 || p > totalPages) return;
+            currentPage = p;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // ── Profile Modal (3-tab: Personal / Academic / Publications) ──
+        async function openProfileModal(userId) {
+            showProfileModalSkeleton(userId, 'personal');
+        }
+
+        async function openPublicationsModal(userId) {
+            showProfileModalSkeleton(userId, 'publications');
+        }
+
+        async function showProfileModalSkeleton(userId, activeTab) {
+            const faculty = allFaculty.find(f => f.id === userId);
+            if (!faculty) return;
+
+            const modal = document.getElementById('profileModal');
+            const box = document.getElementById('profileModalBox');
+            const initials = faculty.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            const avatarColors = ['#1d4ed8', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
+            const color = avatarColors[faculty.name.charCodeAt(0) % avatarColors.length];
+
+            // Render shell immediately
+            box.innerHTML = `
+            <div class="pmodal-banner">
+                <button class="pmodal-close" onclick="closeModal()">✕</button>
+                <div style="display:flex;align-items:center;gap:1.1rem;">
+                    <div class="pmodal-avatar-big" id="pmodal-avatar" style="background:linear-gradient(135deg,${color},${color}99);border-color:rgba(255,255,255,0.4);width:76px;height:76px;font-size:2.1rem;overflow:hidden;">${initials}</div>
+                    <div>
+                        <div class="pmodal-name">${escHtml(faculty.name)}</div>
+                        <div class="pmodal-dept" id="pmodal-desig">📚 ${escHtml(faculty.department)}</div>
+                        <div class="pmodal-email">✉ ${escHtml(faculty.email)}</div>
+                    </div>
+                </div>
+                <div class="pmodal-stats-row" style="margin-top:1rem;">
+                    <div class="pmodal-stat">
+                        <div class="pmodal-stat-num" id="mpubCount">${faculty.publicationCount}</div>
+                        <div class="pmodal-stat-label">Publications</div>
+                    </div>
+                    <div class="pmodal-stat">
+                        <div class="pmodal-stat-num" id="mpExpYears">—</div>
+                        <div class="pmodal-stat-label">Years Exp.</div>
+                    </div>
+                    <div class="pmodal-stat">
+                        <div class="pmodal-stat-num">${faculty.memberSince ? new Date(faculty.memberSince).getFullYear() : '—'}</div>
+                        <div class="pmodal-stat-label">Member Since</div>
+                    </div>
+                    <div class="pmodal-stat">
+                        <div class="pmodal-stat-num">${getRoleLabel(faculty.role)}</div>
+                        <div class="pmodal-stat-label">Role</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="pmodal-tabs">
+                <button class="pmodal-tab ${activeTab === 'personal' ? 'active' : ''}" onclick="switchTab('personal')">👤 Personal Info</button>
+                <button class="pmodal-tab ${activeTab === 'academic' ? 'active' : ''}" onclick="switchTab('academic')">🎓 Academic Info</button>
+                <button class="pmodal-tab ${activeTab === 'publications' ? 'active' : ''}" onclick="switchTab('publications')">📋 Publications (${faculty.publicationCount})</button>
+            </div>
+
+            <div class="pmodal-body">
+                <!-- Tab: Personal -->
+                <div class="pmodal-tab-panel ${activeTab === 'personal' ? 'active' : ''}" id="tab-personal">
+                    <div class="loading-spinner">⏳ Loading profile...</div>
+                </div>
+                <!-- Tab: Academic -->
+                <div class="pmodal-tab-panel ${activeTab === 'academic' ? 'active' : ''}" id="tab-academic">
+                    <div class="loading-spinner">⏳ Loading profile...</div>
+                </div>
+                <!-- Tab: Publications -->
+                <div class="pmodal-tab-panel ${activeTab === 'publications' ? 'active' : ''}" id="tab-publications">
+                    <div class="pub-search-bar" style="margin-top:0.2rem;">
+                        <input type="text" class="pub-search-input" id="pubSearchInModal" placeholder="Search publications..." oninput="filterPubsInModal()">
+                    </div>
+                    <div id="modalPubList"><div class="loading-spinner">⏳ Loading...</div></div>
+                </div>
+            </div>`;
+
+            modal.classList.add('open');
+
+            // Fetch profile + publications in parallel
+            const [profRes, pubRes] = await Promise.allSettled([
+                fetch(`${API}/users/${userId}/profile`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${API}/users/${userId}/publications`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+
+            // --- Render Personal & Academic tabs ---
+            let profile = {};
+            if (profRes.status === 'fulfilled' && profRes.value.ok) {
+                const d = await profRes.value.json();
+                profile = d.data || {};
+                // Update header with designation
+                if (profile.designation) {
+                    document.getElementById('pmodal-desig').innerHTML =
+                        `🏷️ ${escHtml(profile.designation)} &nbsp;·&nbsp; 📚 ${escHtml(profile.department || faculty.department)}`;
+                }
+                if (profile.yearsOfExperience != null) {
+                    document.getElementById('mpExpYears').textContent = profile.yearsOfExperience;
+                }
+                if (profile.profilePicture) {
+                    const pmAvatar = document.getElementById('pmodal-avatar');
+                    if (pmAvatar) pmAvatar.innerHTML = `<img src="${profile.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">`;
+                }
+            }
+
+            function val(v) {
+                return v ? `<span class="info-value">${escHtml(v)}</span>` : `<span class="info-na">Not provided</span>`;
+            }
+            function link(url, label) {
+                return url ? `<span class="info-value"><a href="${escHtml(url)}" target="_blank">${escHtml(label || url)}</a></span>`
+                    : `<span class="info-na">Not provided</span>`;
+            }
+
+            // Personal Tab
+            document.getElementById('tab-personal').innerHTML = `
+                ${profile.bio ? `<div class="pmodal-bio">"${escHtml(profile.bio)}"</div>` : ''}
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Full Name</div>${val(profile.name || faculty.name)}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Email</div>${val(profile.email || faculty.email)}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Department</div>${val(profile.department || faculty.department)}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Role</div>${val(getRoleLabel(profile.role || faculty.role))}
+                    </div>
+                    <div class="info-card full">
+                        <div class="info-label">Website</div>${link(profile.website, profile.website)}
+                    </div>
+                </div>`;
+
+            // Academic Tab
+            document.getElementById('tab-academic').innerHTML = `
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Designation</div>${val(profile.designation)}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Years of Experience</div>
+                        ${profile.yearsOfExperience != null
+                    ? `<span class="info-value">${profile.yearsOfExperience} years</span>`
+                    : `<span class="info-na">Not provided</span>`}
+                    </div>
+                    <div class="info-card full">
+                        <div class="info-label">Specialization / Research Area</div>${val(profile.specialization)}
+                    </div>
+                    <div class="info-card full">
+                        <div class="info-label">Education / Qualifications</div>${val(profile.education)}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Google Scholar</div>${link(profile.googleScholar, '🔗 View Profile')}
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">ORCID iD</div>${link(profile.orcid ? `https://orcid.org/${profile.orcid}` : '', profile.orcid)}
+                    </div>
+                </div>`;
+
+            // --- Render Publications tab ---
+            if (pubRes.status === 'fulfilled' && pubRes.value.ok) {
+                const d = await pubRes.value.json();
+                window._modalPubs = d.publications || [];
+                document.getElementById('mpubCount').textContent = window._modalPubs.length;
+                renderModalPubs(window._modalPubs);
+            } else {
+                document.getElementById('modalPubList').innerHTML = `<div class="pmodal-no-pubs">Failed to load publications</div>`;
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.pmodal-tab').forEach((t, i) => {
+                const tabs = ['personal', 'academic', 'publications'];
+                t.classList.toggle('active', tabs[i] === tab);
+            });
+            document.querySelectorAll('.pmodal-tab-panel').forEach(p => {
+                p.classList.toggle('active', p.id === `tab-${tab}`);
+            });
+        }
+
+        function filterPubsInModal() {
+            const q = document.getElementById('pubSearchInModal')?.value.toLowerCase() || '';
+            const filtered = (window._modalPubs || []).filter(p =>
+                p.title.toLowerCase().includes(q) ||
+                (p.journalConference || '').toLowerCase().includes(q) ||
+                (p.keywords || '').toLowerCase().includes(q)
+            );
+            renderModalPubs(filtered);
+        }
+
+        function renderModalPubs(pubs) {
+            const container = document.getElementById('modalPubList');
+            if (!container) return;
+            if (pubs.length === 0) {
+                container.innerHTML = `<div class="pmodal-no-pubs">📭 No publications found</div>`;
+                return;
+            }
+            container.innerHTML = `<div class="pub-mini-list">` + pubs.map((p, i) => `
+            <div class="pub-mini-item">
+                <div class="pub-mini-title">${i + 1}. ${escHtml(p.title)}</div>
+                <div class="pub-mini-meta">
+                    ${p.monthYear || p.year ? `<span>📅 ${escHtml(p.monthYear || String(p.year))}</span>` : ''}
+                    ${p.journalConference ? `<span>📰 ${escHtml(p.journalConference.length > 55 ? p.journalConference.substring(0, 53) + '…' : p.journalConference)}</span>` : ''}
+                    ${p.issnIsbn ? `<span>🔑 ${escHtml(p.issnIsbn)}</span>` : ''}
+                    <span class="pub-mini-badge">${escHtml(p.indexing || 'Others')}</span>
+                    ${p.publicationLink ? `<a href="${escHtml(p.publicationLink)}" target="_blank" class="pub-mini-link">🔗 View</a>` : ''}
+                </div>
+            </div>`).join('') + `</div>`;
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.remove('open');
+            window._modalPubs = [];
+        }
+
+        // ── Utilities ──────────────────────────────────────────────
+        function getRoleLabel(role) {
+            if (role === 'super_admin') return 'Admin';
+            return 'Faculty';
+        }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function debounce(fn, ms) {
+            let timer;
+            return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+        }
+
+        function showAlert(msg, type) {
+            const area = document.getElementById('alertArea');
+            area.innerHTML = `<div class="alert alert-${type}" style="margin-bottom:1rem;">${msg}</div>`;
+            setTimeout(() => area.innerHTML = '', 4000);
+        }
+    </script>
+</body>
+
+</html>

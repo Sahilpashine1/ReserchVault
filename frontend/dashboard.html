@@ -4,198 +4,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ResearchVault - Manage your research publications">
-    <title>Publications | ResearchVault</title>
+    <meta name="description" content="ResearchVault - Faculty Publications">
+    <title>Faculty Publications | ResearchVault</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/floating-chatbot.css">
+    <style>
+        /* ── Prevent whole-page horizontal scroll ── */
+        html,
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        /* Make the main area clip overflow — only the table wrapper scrolls */
+        .main-area {
+            overflow-x: hidden;
+            min-width: 0;
+        }
+
+        .top-header {
+            overflow: hidden;
+        }
+
+        .page-content {
+            overflow-x: hidden;
+            min-width: 0;
+        }
+
+        /* ── Institutional Publication Table ── */
+        .inst-table-wrapper {
+            overflow-x: auto;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .inst-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            min-width: 2000px;
+            table-layout: auto;
+        }
+
+        .inst-table thead tr {
+            background: #f5c518;
+            /* golden yellow like the image */
+        }
+
+        .inst-table thead th {
+            padding: 0.75rem 0.7rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.78rem;
+            color: #1a1a1a;
+            border: 1px solid #d4a017;
+            vertical-align: middle;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .inst-table tbody tr {
+            transition: background 0.15s;
+        }
+
+        .inst-table tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .inst-table tbody tr:hover {
+            background: #eff6ff;
+        }
+
+        .inst-table tbody td {
+            padding: 0.65rem 0.7rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+            color: #374151;
+            font-size: 0.80rem;
+            line-height: 1.45;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        .inst-table tbody td:first-child {
+            text-align: center;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #eff6ff;
+            min-width: 36px;
+        }
+
+        .inst-table .cell-authors {
+            width: 170px;
+            font-weight: 500;
+        }
+
+        .inst-table .cell-title {
+            width: 190px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .inst-table .cell-link a {
+            color: #2563eb;
+            text-decoration: underline;
+            font-size: 0.73rem;
+            word-break: break-all;
+        }
+
+        .inst-table .cell-link a:hover {
+            color: #1d4ed8;
+        }
+
+        .inst-table .dept-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .inst-table .indexing-badge {
+            display: inline-block;
+            background: #f0fdf4;
+            color: #166534;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+
+        .inst-table .collab-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+        }
+
+        /* Action buttons in table */
+        .inst-action-group {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inst-action-btn {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .inst-action-btn.view {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .inst-action-btn.edit {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .inst-action-btn.delete {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .inst-action-btn:hover {
+            filter: brightness(0.92);
+            transform: translateY(-1px);
+        }
+
+        /* Filters row */
+        .filter-row {
+            display: flex;
+            gap: 0.65rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .filter-search {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Pagination */
+        .pagination-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding: 0.85rem 1.1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 0.3rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            background: white;
+            font-family: inherit;
+            transition: all var(--transition);
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--blue-50);
+            border-color: var(--blue-300);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Export button */
+        .btn-export {
+            background: #166534;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-export:hover {
+            background: #14532d;
+            transform: translateY(-1px);
+        }
+
+        /* Modal form grid for new fields */
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Status tag */
+        .pub-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.22rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .pub-status.published {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pub-status.review {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pub-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pub-status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ── Delete Confirm Modal ── */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .confirm-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .confirm-box {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem 2rem 1.5rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.92);
+            transition: transform 0.2s;
+            text-align: center;
+        }
+
+        .confirm-overlay.open .confirm-box {
+            transform: scale(1);
+        }
+
+        .confirm-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .confirm-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+        }
+
+        .confirm-msg {
+            font-size: 0.87rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .confirm-cancel {
+            padding: 0.6rem 1.4rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .confirm-cancel:hover {
+            background: #f1f5f9;
+        }
+
+        .confirm-delete {
+            padding: 0.6rem 1.4rem;
+            border: none;
+            border-radius: 8px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .confirm-delete:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
+    <div class="app-layout">
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
-            <div class="logo-section">
-                <h2>🔬 ResearchVault</h2>
-                <p>Research Management</p>
+            <div class="sidebar-logo">
+                <a class="logo-brand" href="home.html">
+                    <svg class="logo-icon" viewBox="0 0 40 44" fill="none">
+                        <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="white"
+                            opacity="0.95" />
+                        <path d="M13 22L17.5 26.5L27 16" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="logo-text">Research<span>Vault</span></span>
+                </a>
             </div>
-
-            <nav>
+            <nav class="sidebar-nav">
                 <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="home.html" class="nav-link">
-                            <span>🏠</span>
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="dashboard.html" class="nav-link active">
-                            <span>📊</span>
-                            <span>Publications</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="profile.html" class="nav-link">
-                            <span>👤</span>
-                            <span>My Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" id="adminMenuItem" style="display: none;">
-                        <a href="admin.html" class="nav-link">
-                            <span>🔐</span>
-                            <span>Admin Panel</span>
-                        </a>
-                    </li>
+                    <li class="nav-item"><a href="home.html" class="nav-link"><span
+                                class="nav-icon">🏠</span><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link active"><span
+                                class="nav-icon">📋</span><span>Faculty Publications</span></a></li>
+                    <li class="nav-item"><a href="faculty-search.html" class="nav-link"><span
+                                class="nav-icon">🔍</span><span>Search Faculty</span></a></li>
+                    <li class="nav-item"><a href="profile.html" class="nav-link"><span
+                                class="nav-icon">👤</span><span>Profile</span></a></li>
+                    <li class="nav-item" id="adminMenuItem" style="display:none;"><a href="admin.html"
+                            class="nav-link"><span class="nav-icon">🔐</span><span>Admin Panel</span></a></li>
+                    <li class="nav-item"><a href="settings.html" class="nav-link"><span
+                                class="nav-icon">⚙️</span><span>Settings</span></a></li>
                 </ul>
             </nav>
-
-            <div class="user-section">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-details">
-                        <h4 id="userName">User Name</h4>
-                        <p id="userEmail">user@email.com</p>
-                    </div>
-                </div>
-                <button class="btn btn-danger" id="logoutBtn" style="width: 100%; padding: 0.6rem;">
-                    🚪 Logout
-                </button>
-            </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Page Header -->
-            <header class="page-header">
-                <div>
-                    <h1 class="page-title">Publications</h1>
-                    <p class="page-subtitle">Manage and analyze research output</p>
-                </div>
+        <!-- MAIN AREA -->
+        <div class="main-area">
+            <header class="top-header">
+                <div class="header-spacer"></div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" id="uploadBtn">
-                        📤 Upload Excel/CSV
-                    </button>
-                    <button class="btn btn-success" id="addPublicationBtn">
-                        ➕ Add Publication
-                    </button>
+                    <div class="header-bell">🔔</div>
+                    <div class="header-user">
+                        <div class="header-avatar" id="userAvatar">U</div>
+                        <span class="header-user-name" id="userName">User</span>
+                    </div>
+                    <button class="logout-btn-header" id="logoutBtn">🚪 Logout</button>
                 </div>
             </header>
 
-            <!-- Tabs -->
-            <div
-                style="background: white; border-radius: 15px; padding: 0.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: inline-flex; gap: 0.5rem;">
-                <button class="tab-btn active" id="myPublicationsTab" onclick="switchTab('my')">
-                    👤 My Publications (<span id="myCount">0</span>)
-                </button>
-                <button class="tab-btn" id="allPublicationsTab" onclick="switchTab('all')">
-                    📚 All Publications (<span id="allCount">0</span>)
-                </button>
-            </div>
-
-            <!-- Alert Area -->
-            <div id="alertArea"></div>
-
-            <!-- Publications Table -->
-            <div class="table-card">
-                <div class="table-header">
-                    <h2 class="section-title" style="margin-bottom: 0;">
-                        Publications List (<span id="pubCount">0</span>)
-                    </h2>
-                    <div class="table-controls">
-                        <div class="search-box">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" class="search-input" id="searchInput"
-                                placeholder="Search publications...">
-                        </div>
-                        <select class="form-input" id="sortSelect" style="width: auto;">
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="year-desc">Year (High to Low)</option>
-                            <option value="year-asc">Year (Low to High)</option>
-                            <option value="title">Title (A-Z)</option>
-                        </select>
+            <main class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Faculty Publications</h1>
+                        <p class="page-subtitle">Institutional publication record in standard format</p>
+                    </div>
+                    <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+                        <button class="btn-export" id="exportBtn">📥 Export Excel</button>
+                        <button class="btn btn-secondary" id="uploadBtn">📤 Upload Excel/CSV</button>
+                        <button class="btn btn-primary" id="addPublicationBtn">➕ Add Publication</button>
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <table class="publications-table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Authors</th>
-                                <th>Year</th>
-                                <th>Journal/Conference</th>
-                                <th>Keywords</th>
-                                <th>Link</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="publicationsTableBody">
-                            <tr>
-                                <td colspan="7" class="text-center text-muted" style="padding: 3rem;">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
-                                    <p>No publications yet. Add your first publication or upload an Excel/CSV file.</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Tabs -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" id="myPublicationsTab" onclick="switchTab('my')">👤 My Publications
+                        (<span id="myCount">0</span>)</button>
+                    <button class="tab-btn" id="allPublicationsTab" onclick="switchTab('all')">📚 All Publications
+                        (<span id="allCount">0</span>)</button>
                 </div>
-            </div>
-        </main>
+
+                <div id="alertArea"></div>
+
+                <!-- Filters Row -->
+                <div class="filter-row">
+                    <div class="search-box filter-search">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search publications...">
+                    </div>
+                    <select class="form-input" id="facultyFilter"
+                        style="width:auto;padding:0.55rem 0.8rem;font-size:0.83rem;display:none;">
+                        <option value="">Filter by Faculty Member</option>
+                    </select>
+                    <select class="form-input" id="yearFilter"
+                        style="width:auto;padding:0.55rem 0.8rem;font-size:0.83rem;">
+                        <option value="">All Years</option>
+                    </select>
+                    <select class="form-input" id="indexingFilter"
+                        style="width:auto;padding:0.55rem 0.8rem;font-size:0.83rem;">
+                        <option value="">All Indexing</option>
+                        <option value="SCI">SCI</option>
+                        <option value="SCIE">SCIE</option>
+                        <option value="Scopus">Scopus</option>
+                        <option value="UGC Care">UGC Care</option>
+                        <option value="Web of Science">Web of Science</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <select class="form-input" id="sortSelect"
+                        style="width:auto;padding:0.55rem 0.8rem;font-size:0.83rem;">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="year-desc">Year (High to Low)</option>
+                        <option value="year-asc">Year (Low to High)</option>
+                        <option value="title">Title (A-Z)</option>
+                    </select>
+                </div>
+
+                <!-- Publications Table -->
+                <div class="table-card">
+                    <div class="table-header" style="display:flex;align-items:center;justify-content:space-between;">
+                        <h2 class="section-title">Publications (<span id="pubCount">0</span>)</h2>
+                        <span style="font-size:0.75rem;color:var(--text-muted);">Scroll horizontally to see all
+                            columns →</span>
+                    </div>
+                    <div class="inst-table-wrapper">
+                        <table class="inst-table" id="instTable">
+                            <colgroup>
+                                <col style="min-width:44px;width:44px">   <!-- SN -->
+                                <col style="min-width:180px">             <!-- Authors -->
+                                <col style="min-width:130px">             <!-- Department -->
+                                <col style="min-width:200px">             <!-- Title -->
+                                <col style="min-width:180px">             <!-- Journal -->
+                                <col style="min-width:120px">             <!-- Month/Year -->
+                                <col style="min-width:130px">             <!-- Volume/Issue -->
+                                <col style="min-width:110px">             <!-- ISSN/ISBN -->
+                                <col style="min-width:140px">             <!-- Link/DOI -->
+                                <col style="min-width:110px">             <!-- Indexing -->
+                                <col style="min-width:120px">             <!-- Collaboration -->
+                                <col style="min-width:140px">             <!-- Collab Institution -->
+                                <col style="min-width:100px">             <!-- Actions -->
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th rowspan="1" style="width:36px;">SN</th>
+                                    <th>Name of the Author/s<br><small>(as per Publication sequence)</small></th>
+                                    <th>Department<br>of the Faculty</th>
+                                    <th>Title of Paper</th>
+                                    <th>Name of the Journal</th>
+                                    <th>Month and Year<br>of Publication</th>
+                                    <th>Volume, Issue,<br>Page Number</th>
+                                    <th>ISSN / ISBN<br>Number</th>
+                                    <th>Link of the<br>Article / DOI</th>
+                                    <th>Indexing in SCI/<br>SCIE / Scopus /<br>UGC Care / Web of<br>Science / Other</th>
+                                    <th>Collaboration with /<br>IIT / NIT / Other<br>National / Foreign<br>University /
+                                        Industry</th>
+                                    <th>Name of the<br>Collaborative<br>Institution / Industry</th>
+                                    <th style="min-width:90px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="publicationsTableBody">
+                                <tr>
+                                    <td colspan="13" style="text-align:center;padding:3rem;color:var(--text-muted);">
+                                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">📚</div>
+                                        <p>No publications found</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-row" id="paginationRow" style="display:none;">
+                        <span id="pageInfo">1 to 10 of 0</span>
+                        <div style="display:flex;gap:0.5rem;">
+                            <button class="page-btn" id="prevPageBtn" disabled>‹ Prev</button>
+                            <button class="page-btn" id="nextPageBtn" disabled>Next ›</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <!-- Add/Edit Publication Modal -->
     <div class="modal" id="publicationModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width:780px;">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Add New Publication</h2>
-                <button class="icon-btn" id="closeModal" style="font-size: 1.5rem;">✕</button>
+                <button class="icon-btn" id="closeModal">✕</button>
             </div>
             <div class="modal-body">
                 <form id="publicationForm">
                     <input type="hidden" id="publicationId">
 
+                    <!-- Row 1 -->
                     <div class="form-group">
-                        <label class="form-label" for="pubTitle">Title *</label>
-                        <input type="text" class="form-input" id="pubTitle" required>
+                        <label class="form-label">Title of Paper *</label>
+                        <input type="text" class="form-input" id="pubTitle" required
+                            placeholder="Enter publication title">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="pubAuthors">Authors *</label>
-                        <input type="text" class="form-input" id="pubAuthors" placeholder="Author 1, Author 2, Author 3"
-                            required>
+                    <!-- Row 2 -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Authors *<small style="font-weight:400;color:#6b7280;"> (as per
+                                    publication sequence)</small></label>
+                            <input type="text" class="form-input" id="pubAuthors" placeholder="Author 1, Author 2, ..."
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-input" id="pubDepartment"
+                                placeholder="e.g. Computer Engineering">
+                        </div>
                     </div>
 
+                    <!-- Row 3 -->
                     <div class="form-group">
-                        <label class="form-label" for="pubYear">Year *</label>
-                        <input type="number" class="form-input" id="pubYear" min="1900" max="2030" required>
+                        <label class="form-label">Name of the Journal / Conference *</label>
+                        <input type="text" class="form-input" id="pubJournal" required
+                            placeholder="e.g. International Journal of Creative Research Thoughts (IJCRT)">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="pubJournal">Journal/Conference *</label>
-                        <input type="text" class="form-input" id="pubJournal" required>
+                    <!-- Row 4 -->
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Year *</label>
+                            <input type="number" class="form-input" id="pubYear" min="1900" max="2030" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Month & Year of Publication</label>
+                            <input type="text" class="form-input" id="pubMonthYear" placeholder="e.g. August 2024">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Volume, Issue, Page No.</label>
+                            <input type="text" class="form-input" id="pubVolumeIssuePage"
+                                placeholder="e.g. Volume 12, Issue 9">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="pubKeywords">Keywords *</label>
-                        <input type="text" class="form-input" id="pubKeywords"
-                            placeholder="keyword1, keyword2, keyword3" required>
+                    <!-- Row 5 -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">ISSN / ISBN Number</label>
+                            <input type="text" class="form-input" id="pubIssnIsbn" placeholder="e.g. 2320-2882">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Link of Article / DOI</label>
+                            <input type="url" class="form-input" id="pubLink" placeholder="https://doi.org/...">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="pubAbstract">Abstract</label>
-                        <textarea class="form-input" id="pubAbstract" rows="4"
-                            placeholder="Enter publication abstract..."></textarea>
+                    <!-- Row 6 -->
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Indexing</label>
+                            <select class="form-input" id="pubIndexing">
+                                <option value="Others">Others</option>
+                                <option value="SCI">SCI</option>
+                                <option value="SCIE">SCIE</option>
+                                <option value="Scopus">Scopus</option>
+                                <option value="UGC Care">UGC Care</option>
+                                <option value="Web of Science">Web of Science</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Collaboration Type</label>
+                            <select class="form-input" id="pubCollabType">
+                                <option value="">None</option>
+                                <option value="IIT">IIT</option>
+                                <option value="NIT">NIT</option>
+                                <option value="Other National Institution">Other National Institution</option>
+                                <option value="Other Educational Institute">Other Educational Institute</option>
+                                <option value="Foreign University">Foreign University</option>
+                                <option value="Industry">Industry</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Collaborative Institution / Industry</label>
+                            <input type="text" class="form-input" id="pubCollabInstitution"
+                                placeholder="e.g. University of Maryland">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="pubLink">Publication Link</label>
-                        <input type="url" class="form-input" id="pubLink" placeholder="https://...">
+                    <!-- Row 7 -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Keywords *</label>
+                            <input type="text" class="form-input" id="pubKeywords" placeholder="keyword1, keyword2"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Abstract</label>
+                            <textarea class="form-input" id="pubAbstract" rows="2"
+                                placeholder="Enter abstract..."></textarea>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                <button class="btn btn-success" id="savePublicationBtn">
+                <button class="btn btn-primary" id="savePublicationBtn">
                     <span id="saveButtonText">Save Publication</span>
                     <span id="saveSpinner" class="spinner hidden"></span>
                 </button>
@@ -207,30 +696,26 @@
     <div class="modal" id="uploadModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Upload Excel/CSV File</h2>
-                <button class="icon-btn" id="closeUploadModal" style="font-size: 1.5rem;">✕</button>
+                <h2 class="modal-title">📤 Upload Excel / CSV</h2>
+                <button class="icon-btn" id="closeUploadModal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📁</div>
-                    <h3>Drag & Drop File Here</h3>
-                    <p class="text-muted">or click to browse</p>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 1rem;">
-                        Supported formats: .xlsx, .xls, .csv (Max 5MB)
-                    </p>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.35rem;">Drag & Drop File Here</h3>
+                    <p class="text-muted" style="font-size:0.82rem;">or click to browse</p>
+                    <p class="text-muted" style="font-size:0.78rem;margin-top:0.65rem;">Supported: .xlsx, .xls, .csv ·
+                        Max 5MB</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none;">
                 </div>
-
-                <div id="uploadResult" class="hidden" style="margin-top: 1.5rem;"></div>
-
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 10px;">
-                    <h4 style="margin-bottom: 0.5rem;">📋 Required Columns:</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
-                        Title, Authors, Year, Journal/Conference, Keywords
-                    </p>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
-                        Optional: Abstract, Link
-                    </p>
+                <div id="uploadResult" class="hidden" style="margin-top:1.25rem;"></div>
+                <div style="margin-top:1.25rem;padding:0.85rem;background:#f9fafb;border-radius:10px;">
+                    <h4 style="font-size:0.83rem;margin-bottom:0.35rem;font-weight:600;">📋 Required Columns:</h4>
+                    <p style="font-size:0.82rem;color:var(--text-light);">Title · Authors · Year · Journal/Conference ·
+                        Keywords</p>
+                    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.35rem;">Optional: Department ·
+                        MonthYear · VolumeIssuePageNo · IssnIsbn · Link · Indexing · CollaborationType ·
+                        CollaborativeInstitution · Abstract</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -241,23 +726,414 @@
 
     <!-- View Publication Modal -->
     <div class="modal" id="viewPublicationModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width:700px;">
             <div class="modal-header">
                 <h2 class="modal-title">📖 Publication Details</h2>
-                <button class="icon-btn" id="closeViewModal" style="font-size: 1.5rem;">✕</button>
+                <button class="icon-btn" id="closeViewModal">✕</button>
             </div>
-            <div class="modal-body" id="viewPublicationContent">
-                <!-- Content will be injected by JavaScript -->
-            </div>
+            <div class="modal-body" id="viewPublicationContent"></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="closeViewBtn">Close</button>
-                <button class="btn btn-primary" id="editFromViewBtn">Edit</button>
+                <button class="btn btn-primary" id="editFromViewBtn">✏️ Edit</button>
             </div>
         </div>
     </div>
 
-    <script src="js/auth.js"></script>
-    <script src="js/table.js"></script>
+    <!-- Delete Confirm Modal -->
+    <div class="confirm-overlay" id="deleteConfirmModal">
+        <div class="confirm-box">
+            <div class="confirm-icon">🗑️</div>
+            <div class="confirm-title">Delete Publication?</div>
+            <div class="confirm-msg" id="confirmDeleteMsg">This will permanently remove the publication. This action
+                cannot be undone.</div>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" id="confirmCancelBtn">Cancel</button>
+                <button class="confirm-delete" id="confirmDeleteBtn">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        const API_URL = window.API_URL || 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'index.html';
+
+        let allPubs = [], myPubs = [], currentTab = 'my', filteredPubs = [];
+        const PER_PAGE = 20;
+        let currentPage = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
+            
+            // Fetch profile picture for navbar
+            fetch(`${API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(r => r.ok ? r.json() : null)
+                .then(res => {
+                    if (res?.data?.profilePicture) {
+                        document.getElementById('userAvatar').innerHTML = `<img src="${res.data.profilePicture}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    }
+                }).catch(() => {});
+
+            if (user.role === 'super_admin') {
+                document.getElementById('adminMenuItem').style.display = 'block';
+                document.getElementById('facultyFilter').style.display = 'block';
+            }
+            setupEventListeners();
+            loadPublications();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('addPublicationBtn').addEventListener('click', openAddModal);
+            document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('open'));
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+            document.getElementById('closeModal').addEventListener('click', () => document.getElementById('publicationModal').classList.remove('open'));
+            document.getElementById('cancelBtn').addEventListener('click', () => document.getElementById('publicationModal').classList.remove('open'));
+            document.getElementById('closeUploadModal').addEventListener('click', () => document.getElementById('uploadModal').classList.remove('open'));
+            document.getElementById('cancelUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.remove('open'));
+            document.getElementById('closeViewModal').addEventListener('click', () => document.getElementById('viewPublicationModal').classList.remove('open'));
+            document.getElementById('closeViewBtn').addEventListener('click', () => document.getElementById('viewPublicationModal').classList.remove('open'));
+            document.getElementById('savePublicationBtn').addEventListener('click', savePublication);
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('yearFilter').addEventListener('change', applyFilters);
+            document.getElementById('indexingFilter').addEventListener('change', applyFilters);
+            document.getElementById('sortSelect').addEventListener('change', applyFilters);
+            document.getElementById('prevPageBtn').addEventListener('click', () => { currentPage--; renderPage(); });
+            document.getElementById('nextPageBtn').addEventListener('click', () => { currentPage++; renderPage(); });
+            // Upload
+            const ua = document.getElementById('uploadArea');
+            ua.addEventListener('click', () => document.getElementById('fileInput').click());
+            ua.addEventListener('dragover', e => { e.preventDefault(); ua.style.borderColor = 'var(--blue-500)'; });
+            ua.addEventListener('dragleave', () => { ua.style.borderColor = ''; });
+            ua.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+            document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+        }
+
+        async function loadPublications() {
+            try {
+                const r1 = await fetch(`${API_URL}/publications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (r1.ok) {
+                    const d = await r1.json();
+                    myPubs = d.publications || [];
+                    document.getElementById('myCount').textContent = myPubs.length;
+                }
+                try {
+                    const r2 = await fetch(`${API_URL}/publications/all`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (r2.ok) {
+                        const d = await r2.json();
+                        allPubs = d.publications || d.data || [];
+                    } else { allPubs = myPubs; }
+                } catch (e) { allPubs = myPubs; }
+                document.getElementById('allCount').textContent = allPubs.length;
+                populateYearFilter();
+                applyFilters();
+            } catch (e) { showAlert('Failed to load publications', 'error'); }
+        }
+
+        function populateYearFilter() {
+            const src = [...myPubs, ...allPubs];
+            const years = [...new Set(src.map(p => p.year).filter(Boolean))].sort((a, b) => b - a);
+            const sel = document.getElementById('yearFilter');
+            sel.innerHTML = '<option value="">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            currentPage = 1;
+            document.getElementById('myPublicationsTab').classList.toggle('active', tab === 'my');
+            document.getElementById('allPublicationsTab').classList.toggle('active', tab === 'all');
+            const isAll = tab === 'all';
+            document.getElementById('facultyFilter').style.display = (isAll && user.role === 'super_admin') ? 'block' : 'none';
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const src = currentTab === 'my' ? myPubs : allPubs;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const yearF = document.getElementById('yearFilter').value;
+            const indexF = document.getElementById('indexingFilter').value;
+            const sort = document.getElementById('sortSelect').value;
+
+            filteredPubs = src.filter(p => {
+                const matchSearch = !search || p.title.toLowerCase().includes(search) ||
+                    (p.authors || '').toLowerCase().includes(search) ||
+                    (p.keywords || '').toLowerCase().includes(search) ||
+                    (p.journalConference || '').toLowerCase().includes(search) ||
+                    (p.department || '').toLowerCase().includes(search);
+                const matchYear = !yearF || String(p.year) === yearF;
+                const matchIndex = !indexF || (p.indexing || 'Others') === indexF;
+                return matchSearch && matchYear && matchIndex;
+            });
+
+            if (sort === 'newest') filteredPubs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            else if (sort === 'oldest') filteredPubs.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+            else if (sort === 'year-desc') filteredPubs.sort((a, b) => (b.year || 0) - (a.year || 0));
+            else if (sort === 'year-asc') filteredPubs.sort((a, b) => (a.year || 0) - (b.year || 0));
+            else if (sort === 'title') filteredPubs.sort((a, b) => a.title.localeCompare(b.title));
+
+            document.getElementById('pubCount').textContent = filteredPubs.length;
+            currentPage = 1;
+            renderPage();
+        }
+
+        function renderPage() {
+            const total = filteredPubs.length;
+            const totalPages = Math.ceil(total / PER_PAGE);
+            const start = (currentPage - 1) * PER_PAGE, end = Math.min(start + PER_PAGE, total);
+            const page = filteredPubs.slice(start, end);
+            document.getElementById('pageInfo').textContent = total === 0 ? '0 results' : `${start + 1} to ${end} of ${total}`;
+            document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+            document.getElementById('paginationRow').style.display = total > PER_PAGE ? 'flex' : 'none';
+
+            const tbody = document.getElementById('publicationsTableBody');
+            if (page.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:3rem;color:var(--text-muted);">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;">📚</div>
+        <p>No publications found</p>
+        <button onclick="openAddModal()" class="btn btn-primary" style="margin-top:1rem;">➕ Add First Publication</button>
+      </td></tr>`;
+                return;
+            }
+
+            // p.userId may be a populated object {_id, name, email} or just a string ID
+            const canEdit = (p) => {
+                const myId = user.id || user._id || '';
+                const ownerId = (p.userId && typeof p.userId === 'object') ? (p.userId._id || '') : (p.userId || '');
+                return user.role === 'super_admin' || String(ownerId) === String(myId);
+            };
+
+            tbody.innerHTML = page.map((p, idx) => {
+                const sn = start + idx + 1;
+                const hasLink = p.publicationLink && p.publicationLink.trim();
+                const linkCell = hasLink
+                    ? `<a href="${escHtml(p.publicationLink)}" target="_blank" rel="noopener">${escHtml(p.publicationLink.length > 40 ? p.publicationLink.substring(0, 38) + '…' : p.publicationLink)}</a>`
+                    : '<span style="color:#9ca3af;">—</span>';
+
+                const indexing = p.indexing || 'Others';
+                const collabType = p.collaborationType || '';
+                const collabInst = p.collaborativeInstitution || '';
+
+                return `<tr>
+        <td>${sn}</td>
+        <td class="cell-authors">${escHtml(p.authors || '—')}</td>
+        <td><span class="dept-badge">${escHtml(p.department || '—')}</span></td>
+        <td class="cell-title">${escHtml(p.title)}</td>
+        <td style="max-width:160px;">${escHtml(p.journalConference || '—')}</td>
+        <td style="white-space:nowrap;text-align:center;">${escHtml(p.monthYear || (p.year ? String(p.year) : '—'))}</td>
+        <td style="text-align:center;">${escHtml(p.volumeIssuePageNo || 'NA')}</td>
+        <td style="text-align:center;">${escHtml(p.issnIsbn || 'NA')}</td>
+        <td class="cell-link">${linkCell}</td>
+        <td style="text-align:center;"><span class="indexing-badge">${escHtml(indexing)}</span></td>
+        <td style="text-align:center;">${collabType ? `<span class="collab-badge">${escHtml(collabType)}</span>` : '—'}</td>
+        <td style="max-width:130px;">${escHtml(collabInst || '—')}</td>
+        <td>
+          <div class="inst-action-group">
+            <button class="inst-action-btn view" onclick="viewPublication('${p._id}')">👁 View</button>
+            ${canEdit(p) ? `<button class="inst-action-btn edit" onclick="editPublication('${p._id}')">✏️</button>
+            <button class="inst-action-btn delete" onclick="deletePublication('${p._id}')">🗑</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+            }).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Publication';
+            document.getElementById('saveButtonText').textContent = 'Save Publication';
+            document.getElementById('publicationForm').reset();
+            document.getElementById('publicationId').value = '';
+            document.getElementById('pubYear').value = new Date().getFullYear();
+            document.getElementById('publicationModal').classList.add('open');
+        }
+
+        function viewPublication(id) {
+            const p = [...myPubs, ...allPubs].find(x => x._id === id);
+            if (!p) return;
+            const rows = [
+                ['Authors', p.authors],
+                ['Department', p.department],
+                ['Year', p.year],
+                ['Month & Year', p.monthYear],
+                ['Journal / Conference', p.journalConference],
+                ['Volume / Issue / Page', p.volumeIssuePageNo],
+                ['ISSN / ISBN', p.issnIsbn],
+                ['Indexing', p.indexing],
+                ['Collaboration Type', p.collaborationType],
+                ['Collaborative Institution', p.collaborativeInstitution],
+                ['Keywords', p.keywords],
+            ].filter(([, v]) => v).map(([label, val]) =>
+                `<div><div class="form-label">${label}</div><div style="font-size:0.85rem;">${escHtml(String(val))}</div></div>`
+            ).join('');
+
+            document.getElementById('viewPublicationContent').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.85rem;">
+        <h3 style="font-size:1rem;font-weight:700;color:var(--text-primary);">${escHtml(p.title)}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">${rows}</div>
+        ${p.abstract ? `<div><div class="form-label">Abstract</div><div style="font-size:0.83rem;color:var(--text-secondary);line-height:1.5;">${escHtml(p.abstract)}</div></div>` : ''}
+        ${p.publicationLink ? `<div><a href="${escHtml(p.publicationLink)}" target="_blank" class="btn btn-outline btn-sm">🔗 View Publication</a></div>` : ''}
+      </div>`;
+            // Show/hide the Edit button in view modal based on ownership
+            const myId = user.id || user._id || '';
+            const ownerId = (p.userId && typeof p.userId === 'object') ? (p.userId._id || '') : (p.userId || '');
+            const canEditThis = user.role === 'super_admin' || String(ownerId) === String(myId);
+            const editFromViewBtn = document.getElementById('editFromViewBtn');
+            editFromViewBtn.style.display = canEditThis ? '' : 'none';
+            editFromViewBtn.onclick = () => {
+                document.getElementById('viewPublicationModal').classList.remove('open');
+                editPublication(id);
+            };
+            document.getElementById('viewPublicationModal').classList.add('open');
+        }
+
+        function editPublication(id) {
+            const p = [...myPubs, ...allPubs].find(x => x._id === id);
+            if (!p) return;
+            document.getElementById('modalTitle').textContent = 'Edit Publication';
+            document.getElementById('saveButtonText').textContent = 'Update Publication';
+            document.getElementById('publicationId').value = id;
+            document.getElementById('pubTitle').value = p.title || '';
+            document.getElementById('pubAuthors').value = p.authors || '';
+            document.getElementById('pubDepartment').value = p.department || '';
+            document.getElementById('pubYear').value = p.year || '';
+            document.getElementById('pubMonthYear').value = p.monthYear || '';
+            document.getElementById('pubJournal').value = p.journalConference || '';
+            document.getElementById('pubVolumeIssuePage').value = p.volumeIssuePageNo || '';
+            document.getElementById('pubIssnIsbn').value = p.issnIsbn || '';
+            document.getElementById('pubLink').value = p.publicationLink || '';
+            document.getElementById('pubIndexing').value = p.indexing || 'Others';
+            document.getElementById('pubCollabType').value = p.collaborationType || '';
+            document.getElementById('pubCollabInstitution').value = p.collaborativeInstitution || '';
+            document.getElementById('pubKeywords').value = p.keywords || '';
+            document.getElementById('pubAbstract').value = p.abstract || '';
+            document.getElementById('publicationModal').classList.add('open');
+        }
+
+        async function savePublication() {
+            const id = document.getElementById('publicationId').value;
+            const data = {
+                title: document.getElementById('pubTitle').value.trim(),
+                authors: document.getElementById('pubAuthors').value.trim(),
+                department: document.getElementById('pubDepartment').value.trim(),
+                year: parseInt(document.getElementById('pubYear').value),
+                monthYear: document.getElementById('pubMonthYear').value.trim(),
+                journalConference: document.getElementById('pubJournal').value.trim(),
+                volumeIssuePageNo: document.getElementById('pubVolumeIssuePage').value.trim(),
+                issnIsbn: document.getElementById('pubIssnIsbn').value.trim(),
+                publicationLink: document.getElementById('pubLink').value.trim(),
+                indexing: document.getElementById('pubIndexing').value,
+                collaborationType: document.getElementById('pubCollabType').value,
+                collaborativeInstitution: document.getElementById('pubCollabInstitution').value.trim(),
+                keywords: document.getElementById('pubKeywords').value.trim(),
+                abstract: document.getElementById('pubAbstract').value.trim()
+            };
+            if (!data.title || !data.authors || !data.year || !data.journalConference || !data.keywords) {
+                showAlert('Please fill in all required fields', 'error'); return;
+            }
+            const btn = document.getElementById('saveButtonText'), sp = document.getElementById('saveSpinner');
+            btn.classList.add('hidden'); sp.classList.remove('hidden');
+            try {
+                const url = id ? `${API_URL}/publications/${id}` : `${API_URL}/publications`;
+                const method = id ? 'PUT' : 'POST';
+                const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(data) });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message || 'Failed');
+                showAlert(res.message || (id ? 'Publication updated!' : 'Publication added!'), 'success');
+                document.getElementById('publicationModal').classList.remove('open');
+                loadPublications();
+            } catch (e) { showAlert(e.message || 'Failed to save', 'error'); }
+            finally { btn.classList.remove('hidden'); sp.classList.add('hidden'); }
+        }
+
+        // ── Custom Delete Confirmation ───────────────────────────────────
+        let deleteResolve = null;
+        const deleteModal = document.getElementById('deleteConfirmModal');
+        document.getElementById('confirmCancelBtn').onclick = () => { deleteModal.classList.remove('open'); if (deleteResolve) deleteResolve(false); };
+        document.getElementById('confirmDeleteBtn').onclick = () => { deleteModal.classList.remove('open'); if (deleteResolve) deleteResolve(true); };
+        deleteModal.addEventListener('click', e => { if (e.target === deleteModal) { deleteModal.classList.remove('open'); if (deleteResolve) deleteResolve(false); } });
+
+        function confirmDelete(pubTitle) {
+            return new Promise(resolve => {
+                deleteResolve = resolve;
+                document.getElementById('confirmDeleteMsg').textContent =
+                    `"${pubTitle ? pubTitle.substring(0, 60) + (pubTitle.length > 60 ? '…' : '') : 'this publication'}" will be permanently removed.`;
+                deleteModal.classList.add('open');
+            });
+        }
+
+        async function deletePublication(id) {
+            const pubToDelete = [...myPubs, ...allPubs].find(x => x._id === id);
+            const confirmed = await confirmDelete(pubToDelete?.title);
+            if (!confirmed) return;
+            try {
+                const r = await fetch(`${API_URL}/publications/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message || 'Failed to delete');
+                showAlert(res.message || 'Publication deleted!', 'success');
+                loadPublications();
+            } catch (e) { showAlert(e.message || 'Failed to delete', 'error'); }
+        }
+
+        async function processFile(file) {
+            const fd = new FormData(); fd.append('file', file);
+            document.getElementById('uploadResult').innerHTML = '<div class="alert alert-info">⏳ Uploading...</div>';
+            document.getElementById('uploadResult').classList.remove('hidden');
+            try {
+                const r = await fetch(`${API_URL}/publications/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+                const res = await r.json();
+                if (!r.ok) throw new Error(res.message);
+                document.getElementById('uploadResult').innerHTML = `<div class="alert alert-success">✅ ${res.message || 'Upload successful!'}</div>`;
+                loadPublications();
+            } catch (e) {
+                document.getElementById('uploadResult').innerHTML = `<div class="alert alert-error">❌ ${e.message || 'Upload failed'}</div>`;
+            }
+        }
+
+        function exportToExcel() {
+            const src = filteredPubs.length ? filteredPubs : (currentTab === 'my' ? myPubs : allPubs);
+            if (!src.length) { showAlert('No data to export', 'error'); return; }
+            const headers = ['SN', 'Authors', 'Department', 'Title', 'Journal/Conference', 'Month & Year', 'Year', 'Volume/Issue/Page', 'ISSN/ISBN', 'Link/DOI', 'Indexing', 'Collaboration Type', 'Collaborative Institution'];
+            const rows = src.map((p, i) => [
+                i + 1,
+                p.authors || '',
+                p.department || '',
+                p.title || '',
+                p.journalConference || '',
+                p.monthYear || '',
+                p.year || '',
+                p.volumeIssuePageNo || '',
+                p.issnIsbn || '',
+                p.publicationLink || '',
+                p.indexing || 'Others',
+                p.collaborationType || '',
+                p.collaborativeInstitution || ''
+            ]);
+            const csvContent = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Publications_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showAlert('Exported successfully!', 'success');
+        }
+
+        function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('alertArea');
+            const cls = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-error' : 'alert-info';
+            const div = document.createElement('div'); div.className = `alert ${cls}`; div.textContent = msg; el.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 4000);
+        }
+
+        async function logout() {
+            try { await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }); } catch (e) { }
+            localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'index.html';
+        }
+    </script>
     <script src="js/floating-chatbot.js"></script>
 </body>
 

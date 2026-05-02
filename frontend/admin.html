@@ -4,322 +4,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Admin Panel - ResearchVault">
+    <meta name="description" content="ResearchVault - Admin Panel">
     <title>Admin Panel | ResearchVault</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-stats {
+        /* Admin dashboard two-column for pending approvals + activity logs */
+        .admin-dash-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: 1fr 320px;
+            gap: 1rem;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            padding: 1.5rem;
-            border-radius: 15px;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        @media(max-width:900px) {
+            .admin-dash-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .stat-card h3 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-
-        .users-table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .users-table {
+        /* Pending Approvals table */
+        .pending-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .users-table th {
-            background: var(--bg-secondary);
-            padding: 1rem;
+        .pending-table th {
             text-align: left;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: var(--text-primary);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .users-table td {
-            padding: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .users-table tr:hover {
-            background: var(--bg-secondary);
+        .pending-table td {
+            padding: 0.85rem 0.9rem;
+            font-size: 0.84rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
         }
 
-        .role-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
+        .pending-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pending-table tr:hover td {
+            background: var(--blue-50);
+        }
+
+        .status-select-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .status-select {
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.78rem;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            background: white;
+        }
+
+        .status-select.pending-sel {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+        }
+
+        .status-select.published-sel {
+            background: var(--success-bg);
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+
+        .status-select.rejected-sel {
+            background: var(--danger-bg);
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .expand-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.3rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .expand-btn:hover {
+            background: var(--blue-50);
+            border-color: var(--blue-300);
+        }
+
+        /* Activity logs sidebar */
+        .activity-log-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.1rem;
+            height: fit-content;
+        }
+
+        .activity-log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-log-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .activity-log-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-200), var(--blue-400));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--blue-800);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .activity-log-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .activity-log-text {
+            flex: 1;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .activity-log-text strong {
+            color: var(--text-primary);
+        }
+
+        .activity-log-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* Users table with avatar */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-cell-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-300), var(--blue-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .user-cell-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-cell-name {
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-cell-dept {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+        }
+
+        /* Action buttons in user table */
+        .action-btn {
+            padding: 0.28rem 0.65rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 0.77rem;
+            font-family: inherit;
+            transition: all var(--transition);
+            background: white;
+        }
+
+        .action-btn.edit {
+            color: var(--blue-600);
+            border-color: var(--blue-200);
+        }
+
+        .action-btn.edit:hover {
+            background: var(--blue-50);
+        }
+
+        .action-btn.approve {
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+
+        .action-btn.approve:hover {
+            background: var(--success-bg);
+        }
+
+        .action-btn.suspend {
+            color: #b45309;
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+
+        .action-btn.suspend:hover {
+            background: #fde68a;
+        }
+
+        .action-btn.activate {
+            color: white;
+            background: var(--blue-600);
+            border-color: var(--blue-600);
+        }
+
+        .action-btn.activate:hover {
+            background: var(--blue-700);
+        }
+
+        .action-btn.delete {
+            color: var(--danger);
+            border-color: var(--danger-bg);
+        }
+
+        .action-btn.delete:hover {
+            background: var(--danger-bg);
+        }
+
+        .action-btn.role {
+            color: #6d28d9;
+            border-color: #ddd6fe;
+        }
+
+        .action-btn.role:hover {
+            background: #f5f3ff;
+        }
+
+        /* Role badge small */
+        .role-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.73rem;
             font-weight: 600;
         }
 
         .role-badge.user {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: var(--blue-50);
+            color: var(--blue-700);
         }
 
         .role-badge.super_admin {
-            background: #f3e5f5;
-            color: #7b1fa2;
+            background: #f5f3ff;
+            color: #6d28d9;
         }
 
+        .role-badge.guest {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Status badge */
         .status-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 12px;
+            font-size: 0.73rem;
             font-weight: 600;
         }
 
         .status-badge.active {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: var(--success-bg);
+            color: #065f46;
         }
 
         .status-badge.inactive {
-            background: #ffebee;
-            color: #c62828;
+            background: var(--danger-bg);
+            color: #991b1b;
         }
 
-        .action-btn {
-            padding: 0.4rem 0.8rem;
-            margin: 0 0.2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .action-btn.edit {
-            background: #2196f3;
-            color: white;
-        }
-
-        .action-btn.role {
-            background: #ff9800;
-            color: white;
-        }
-
-        .action-btn.delete {
-            background: #f44336;
-            color: white;
-        }
-
-        .action-btn:hover {
-            opacity: 0.8;
-            transform: translateY(-2px);
-        }
-
-        .filter-section {
+        /* Pagination */
+        .pagination {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 0.85rem 1.1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: var(--text-light);
         }
 
-        .tab-navigation {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .tab-btn {
-            padding: 1rem 2rem;
-            background: none;
-            border: none;
+        .page-btn {
+            padding: 0.3rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
+            font-size: 0.79rem;
+            background: white;
+            font-family: inherit;
+            transition: all var(--transition);
         }
 
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
+        .page-btn:hover {
+            background: var(--blue-50);
+            border-color: var(--blue-300);
         }
 
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
     </style>
 </head>
 
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo-section">
-                <h2>🔐 Admin Panel</h2>
-                <p>System Management</p>
-            </div>
+    <div class="app-layout">
 
-            <nav>
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <a class="logo-brand" href="admin.html">
+                    <svg class="logo-icon" viewBox="0 0 40 44" fill="none">
+                        <path d="M20 2L4 8.5V20C4 30.2 11.2 39.7 20 42C28.8 39.7 36 30.2 36 20V8.5L20 2Z" fill="white"
+                            opacity="0.95" />
+                        <path d="M13 22L17.5 26.5L27 16" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="logo-text">Research<span>Vault</span></span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
                 <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="dashboard.html" class="nav-link">
-                            <span>📊</span>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="admin.html" class="nav-link active">
-                            <span>👥</span>
-                            <span>User Management</span>
-                        </a>
-                    </li>
+                    <li class="nav-item"><a href="admin.html" class="nav-link active" id="dashNav"><span
+                                class="nav-icon">📊</span><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="admin.html" class="nav-link" id="userMgmtNav"><span
+                                class="nav-icon">👥</span><span>User Management</span></a></li>
+                    <li class="nav-item"><a href="dashboard.html" class="nav-link"><span
+                                class="nav-icon">📋</span><span>Faculty Publications</span></a></li>
+
+                    <li class="nav-item"><a href="settings.html" class="nav-link"><span
+                                class="nav-icon">⚙️</span><span>Settings</span></a></li>
                 </ul>
             </nav>
-
-            <div class="user-section">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">A</div>
-                    <div class="user-details">
-                        <h4 id="userName">Admin</h4>
-                        <p id="userEmail">admin@college.edu</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--accent-color);"></p>
-                    </div>
-                </div>
-                <button class="btn btn-danger" id="logoutBtn" style="width: 100%; padding: 0.6rem;">
-                    🚪 Logout
-                </button>
-            </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Page Header -->
-            <header class="page-header">
-                <div>
-                    <h1 class="page-title">User Management</h1>
-                    <p class="page-subtitle">Manage system users and permissions</p>
-                </div>
+        <!-- MAIN AREA -->
+        <div class="main-area">
+            <header class="top-header">
+                <div class="header-spacer"></div>
                 <div class="header-actions">
-                    <button class="btn btn-success" id="createUserBtn">
-                        ➕ Create New User
-                    </button>
+                    <div class="header-bell">🔔</div>
+                    <div class="header-user" id="headerUserBtn">
+                        <div class="header-avatar" id="userAvatar">A</div>
+                        <div>
+                            <div class="header-user-name" id="userName">Admin</div>
+                            <div style="font-size:0.68rem;color:var(--text-muted);" id="userEmail"></div>
+                        </div>
+                    </div>
+                    <button class="logout-btn-header" id="logoutBtn">🚪 Logout</button>
                 </div>
             </header>
 
-            <!-- Alert Area -->
-            <div id="alertArea"></div>
+            <main class="page-content">
+                <div id="alertArea"></div>
 
-            <!-- Tab Navigation -->
-            <div class="tab-navigation">
-                <button class="tab-btn active" data-tab="users">Users</button>
-                <button class="tab-btn" data-tab="logs">Activity Logs</button>
-                <button class="tab-btn" data-tab="stats">Statistics</button>
-            </div>
+                <!-- === DASHBOARD VIEW === -->
+                <div id="dashboardView">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Admin Dashboard</h1>
+                            <p class="page-subtitle" id="userRole">Super Admin · ResearchVault</p>
+                        </div>
+                        <button class="btn btn-primary" id="createUserBtn">➕ Add User</button>
+                    </div>
 
-            <!-- Users Tab -->
-            <div class="tab-content active" id="users-tab">
-                <!-- Stats Cards -->
-                <div class="admin-stats">
-                    <div class="stat-card">
-                        <h3 id="totalUsersCount">0</h3>
-                        <p>Total Users</p>
+                    <!-- Stat Cards -->
+                    <div class="stats-grid" style="margin-bottom:1rem;">
+                        <div class="stat-card" onclick="switchToUserMgmt()" style="cursor:pointer;">
+                            <div class="stat-icon-wrap">👥</div>
+                            <div>
+                                <div class="stat-label">Faculty Members</div>
+                                <div class="stat-value" id="totalUsersCount">—</div>
+                                <div class="stat-sub" id="statSubUsers">Total registered users</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="cursor:pointer;" onclick="switchTab('logs')">
+                            <div class="stat-icon-wrap" style="background:#dbeafe;">📋</div>
+                            <div>
+                                <div class="stat-label">Pending Approvals</div>
+                                <div class="stat-value" id="activeUsersCount">—</div>
+                                <div class="stat-sub">Recent publications</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="cursor:pointer;" onclick="switchTab('logs')">
+                            <div class="stat-icon-wrap" style="background:#fde8e8;">📝</div>
+                            <div>
+                                <div class="stat-label">Activity Logs</div>
+                                <div class="stat-value" id="adminUsersCount">—</div>
+                                <div class="stat-sub">Recent activity</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                        <h3 id="activeUsersCount">0</h3>
-                        <p>Active Users</p>
-                    </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-                        <h3 id="adminUsersCount">0</h3>
-                        <p>Admin Users</p>
+
+                    <!-- Pending Approvals + Activity Logs -->
+                    <div class="admin-dash-grid">
+                        <!-- Pending Approvals Table -->
+                        <div class="table-card">
+                            <div class="table-header">
+                                <h2 class="section-title">📋 Pending Approvals</h2>
+                                <a href="dashboard.html"
+                                    style="font-size:0.78rem;color:var(--blue-600);font-weight:600;text-decoration:none;">View
+                                    All</a>
+                            </div>
+                            <div class="table-container">
+                                <table class="pending-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Author</th>
+                                            <th>Title</th>
+                                            <th>Date Submitted</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingTableBody">
+                                        <tr>
+                                            <td colspan="5"
+                                                style="text-align:center;padding:2rem;color:var(--text-muted);">⏳
+                                                Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Activity Logs Sidebar -->
+                        <div class="activity-log-card">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;">
+                                <h2 style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">📊 Activity Logs
+                                </h2>
+                                <button class="btn btn-secondary btn-sm" onclick="switchTab('logs')">View All</button>
+                            </div>
+                            <div id="dashActivityLogs">
+                                <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.8rem;">⏳
+                                    Loading...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Filters -->
-                <div class="filter-section">
-                    <div class="search-box">
+                <!-- === USER MANAGEMENT TAB === -->
+                <div id="userMgmtView" style="display:none;">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">User Management</h1>
+                            <p class="page-subtitle">Manage faculty members and system users</p>
+                        </div>
+                        <button class="btn btn-primary" id="createUserBtn2">➕ Add User</button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="search-box" style="width:100%;margin-bottom:1rem;">
                         <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" id="userSearchInput"
-                            placeholder="Search by name or email...">
+                        <input type="text" class="search-input" id="userSearchInput" placeholder="Search users...">
                     </div>
-                    <select class="form-input" id="roleFilter" style="width: auto;">
-                        <option value="">All Roles</option>
-                        <option value="user">Faculty Users</option>
-                        <option value="super_admin">Super Admins</option>
-                    </select>
-                    <select class="form-input" id="statusFilter" style="width: auto;">
-                        <option value="">All Status</option>
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                </div>
 
-                <!-- Users Table -->
-                <div class="users-table-container">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Department</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Publications</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 3rem;">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
-                                    <p>Loading users...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Activity Logs Tab -->
-            <div class="tab-content" id="logs-tab">
-                <div class="users-table-container">
-                    <h2 class="section-title">Activity Logs</h2>
-                    <div id="logsContent" style="padding: 2rem; text-align: center;">
-                        <p>Loading activity logs...</p>
+                    <div class="table-card">
+                        <div class="table-header" style="padding-bottom:0.6rem;">
+                            <h2 class="section-title">All Users</h2>
+                            <div style="display:flex;gap:0.5rem;">
+                                <select class="form-input" id="roleFilter"
+                                    style="width:auto;padding:0.5rem 0.75rem;font-size:0.82rem;">
+                                    <option value="">All Roles</option>
+                                    <option value="user">Faculty Users</option>
+                                    <option value="super_admin">Super Admins</option>
+                                </select>
+                                <select class="form-input" id="statusFilter"
+                                    style="width:auto;padding:0.5rem 0.75rem;font-size:0.82rem;">
+                                    <option value="">All Status</option>
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center;padding:3rem;color:var(--text-muted);">
+                                            <div style="font-size:2rem;margin-bottom:0.5rem;">👥</div>
+                                            <p>Loading users...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Statistics Tab -->
-            <div class="tab-content" id="stats-tab">
-                <div class="users-table-container">
-                    <h2 class="section-title">System Statistics</h2>
-                    <div id="statsContent" style="padding: 2rem; text-align: center;">
-                        <p>Loading statistics...</p>
+                <!-- === TABS (Logs & Stats) === -->
+                <div id="logsStatsSection" style="display:none;">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title" id="tabPageTitle">Activity Logs</h1>
+                        </div>
+                        <button class="btn btn-secondary" onclick="backToDash()">← Back</button>
+                    </div>
+                    <div class="tab-navigation">
+                        <button class="tab-btn active" data-tab="logs">Activity Logs</button>
+                        <button class="tab-btn" data-tab="stats">Statistics</button>
+                    </div>
+                    <div class="tab-content active" id="logs-tab">
+                        <div class="table-card">
+                            <div id="logsContent" style="padding:2rem;text-align:center;color:var(--text-muted);">
+                                Loading...</div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="stats-tab">
+                        <div class="table-card">
+                            <div id="statsContent" style="padding:2rem;text-align:center;color:var(--text-muted);">
+                                Loading...</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
     <!-- Create/Edit User Modal -->
@@ -327,51 +580,35 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="userModalTitle">Create New User</h2>
-                <button class="icon-btn" id="closeUserModal" style="font-size: 1.5rem;">✕</button>
+                <button class="icon-btn" id="closeUserModal">✕</button>
             </div>
             <div class="modal-body">
                 <form id="userForm">
                     <input type="hidden" id="userId">
-
-                    <div class="form-group">
-                        <label class="form-label" for="userName">Name *</label>
-                        <input type="text" class="form-input" id="userNameInput" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="userEmail">Email *</label>
-                        <input type="email" class="form-input" id="userEmailInput" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="userDepartment">Department</label>
-                        <input type="text" class="form-input" id="userDepartmentInput">
-                    </div>
-
+                    <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                            class="form-input" id="userNameInput" required></div>
+                    <div class="form-group"><label class="form-label">Email *</label><input type="email"
+                            class="form-input" id="userEmailInput" required></div>
+                    <div class="form-group"><label class="form-label">Department</label><input type="text"
+                            class="form-input" id="userDepartmentInput"></div>
                     <div class="form-group" id="roleSelectGroup">
-                        <label class="form-label" for="userRoleInput">Role *</label>
-                        <select class="form-input" id="userRoleInput" required>
-                            <option value="user">Faculty User (Default - Can view all publications)</option>
-                            <option value="super_admin">Super Admin (Full Access)</option>
+                        <label class="form-label">Role *</label>
+                        <select class="form-input" id="userRoleInput">
+                            <option value="user">Faculty User</option>
+                            <option value="super_admin">Super Admin</option>
                         </select>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                            💡 Users created by admin can view all publications but only edit their own. Super Admin can
-                            edit any publication.
-                        </p>
                     </div>
-
                     <div class="form-group" id="passwordGroup">
-                        <label class="form-label" for="userPassword">Password *</label>
+                        <label class="form-label">Password *</label>
                         <input type="password" class="form-input" id="userPasswordInput">
-                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                            Leave blank to keep current password (when editing)
-                        </p>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;">Leave blank to keep
+                            current password (edit mode)</p>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelUserBtn">Cancel</button>
-                <button class="btn btn-success" id="saveUserBtn">
+                <button class="btn btn-primary" id="saveUserBtn">
                     <span id="saveUserButtonText">Create User</span>
                     <span id="saveUserSpinner" class="spinner hidden"></span>
                 </button>
@@ -379,19 +616,18 @@
         </div>
     </div>
 
-    <!-- Change Role Modal -->
+    <!-- Role Modal -->
     <div class="modal" id="roleModal">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width:460px;">
             <div class="modal-header">
                 <h2 class="modal-title">Change User Role</h2>
-                <button class="icon-btn" id="closeRoleModal" style="font-size: 1.5rem;">✕</button>
+                <button class="icon-btn" id="closeRoleModal">✕</button>
             </div>
             <div class="modal-body">
-                <p style="margin-bottom: 1rem;">Change role for: <strong id="roleChangeUserName"></strong></p>
-                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
-                    Email: <strong id="roleChangeUserEmail"></strong>
-                </p>
-
+                <p style="font-size:0.875rem;margin-bottom:0.5rem;">Changing role for: <strong
+                        id="roleChangeUserName"></strong></p>
+                <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;"><strong
+                        id="roleChangeUserEmail"></strong></p>
                 <div class="form-group">
                     <label class="form-label">New Role</label>
                     <select class="form-input" id="newRoleSelect">
@@ -399,12 +635,10 @@
                         <option value="super_admin">Super Admin</option>
                     </select>
                 </div>
-
-                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
-                    <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem;">Role Permissions:</h4>
+                <div style="background:#f9fafb;padding:0.9rem;border-radius:10px;margin-top:0.75rem;">
+                    <h4 style="font-size:0.82rem;margin-bottom:0.45rem;font-weight:600;">Permissions:</h4>
                     <ul id="rolePermissionsList"
-                        style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);">
-                    </ul>
+                        style="font-size:0.8rem;line-height:1.75;color:var(--text-light);padding-left:1rem;"></ul>
                 </div>
             </div>
             <div class="modal-footer">
@@ -414,7 +648,168 @@
         </div>
     </div>
 
-    <script src="js/auth.js"></script>
+    <script>
+        // Nav switchers
+        function switchToUserMgmt() {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('userMgmtView').style.display = 'block';
+            document.getElementById('logsStatsSection').style.display = 'none';
+            setNavActive('userMgmtNav');
+        }
+        function switchTab(tab) {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('userMgmtView').style.display = 'none';
+            document.getElementById('logsStatsSection').style.display = 'block';
+            document.getElementById('tabPageTitle').textContent = tab === 'logs' ? 'Activity Logs' : 'Statistics';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => { if (b.dataset.tab === tab) b.classList.add('active'); });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            if (tab === 'logs') loadActivityLogs();
+            else loadDetailedStats();
+        }
+        function backToDash() {
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('userMgmtView').style.display = 'none';
+            document.getElementById('logsStatsSection').style.display = 'none';
+            setNavActive('dashNav');
+        }
+        function setNavActive(id) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Sidebar nav click handlers
+        document.getElementById('dashNav').addEventListener('click', e => { e.preventDefault(); backToDash(); });
+        document.getElementById('userMgmtNav').addEventListener('click', e => { e.preventDefault(); switchToUserMgmt(); });
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', e => switchTab(e.target.dataset.tab)));
+
+        // Load pending approvals for the dashboard
+        async function loadDashboardData() {
+            const token = localStorage.getItem('token');
+            // Load recent publications as "pending approvals"
+            try {
+                const r = await fetch(`${window.API_URL}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (r.ok) {
+                    const res = await r.json();
+                    const users = res.data || [];
+                    document.getElementById('totalUsersCount').textContent = users.length;
+                    document.getElementById('activeUsersCount').textContent = users.filter(u => u.isActive).length;
+                }
+            } catch (e) { }
+
+            // Load recent pubs from admin/stats for pending approvals section
+            try {
+                const r = await fetch(`${window.API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (r.ok) {
+                    const res = await r.json();
+                    if (res.data && res.data.publications) {
+                        document.getElementById('adminUsersCount').textContent = res.data.publications.total || '—';
+                    }
+                }
+            } catch (e) { }
+
+            // Load recent pubs for pending approvals table
+            await loadDashboardPublications();
+            // Load recent activity logs
+            await loadDashActivityLogs();
+        }
+
+        async function loadDashboardPublications() {
+            const token = localStorage.getItem('token');
+            try {
+                // Try admin all-publications endpoint first
+                let pubs = [];
+                const r = await fetch(`${window.API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (r.ok) {
+                    const res = await r.json();
+                    // stats endpoint may return publications by year
+                    const tbody = document.getElementById('pendingTableBody');
+                    // Use stats data to generate display - fetch admin publications
+                    const r2 = await fetch(`${window.API_URL}/publications/all`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (r2.ok) {
+                        const d = await r2.json();
+                        pubs = (d.publications || d.data || []).slice(0, 5);
+                    } else {
+                        // Fallback: use own publications
+                        const r3 = await fetch(`${window.API_URL}/publications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (r3.ok) { const d = await r3.json(); pubs = (d.publications || []).slice(0, 5); }
+                    }
+                    if (pubs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No recent publications</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = pubs.map(p => {
+                        const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : p.year;
+                        const author = p.authors ? p.authors.split(',')[0].trim() : 'Unknown';
+                        return `<tr>
+            <td><strong>${escHtml(author)}</strong></td>
+            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(p.title)}</td>
+            <td style="color:var(--text-muted);font-size:0.8rem;">${date}</td>
+            <td>
+              <div class="status-select-wrap">
+                <select class="status-select pending-sel" onchange="updateStatusSelect(this)">
+                  <option value="pending" selected>Pending</option>
+                  <option value="published">Published</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </td>
+            <td><button class="expand-btn">›</button></td>
+          </tr>`;
+                    }).join('');
+                }
+            } catch (e) {
+                document.getElementById('pendingTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--text-muted);">Failed to load publications</td></tr>`;
+            }
+        }
+
+        function updateStatusSelect(sel) {
+            sel.className = 'status-select';
+            if (sel.value === 'pending') sel.classList.add('pending-sel');
+            else if (sel.value === 'published') sel.classList.add('published-sel');
+            else sel.classList.add('rejected-sel');
+        }
+
+        async function loadDashActivityLogs() {
+            const token = localStorage.getItem('token');
+            const el = document.getElementById('dashActivityLogs');
+            try {
+                const r = await fetch(`${window.API_URL}/admin/activity-logs?limit=8`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!r.ok) throw new Error();
+                const res = await r.json();
+                const logs = res.data || [];
+                if (logs.length === 0) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:1rem;">No recent activity</div>'; return; }
+                el.innerHTML = logs.slice(0, 6).map(log => {
+                    const initial = (log.userEmail || 'U').charAt(0).toUpperCase();
+                    const time = timeDiff(new Date(log.timestamp));
+                    return `<div class="activity-log-item">
+          <div class="activity-log-avatar">${initial}</div>
+          <div>
+            <div class="activity-log-text"><strong>${escHtml(log.userEmail || '')}</strong> ${formatAction(log.action)}</div>
+            <div class="activity-log-time">${time}</div>
+          </div>
+        </div>`;
+                }).join('');
+            } catch (e) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:1rem;">Loading activity...</div>'; }
+        }
+
+        function formatAction(action) {
+            const map = { 'LOGIN': 'logged in', 'LOGOUT': 'logged out', 'CREATE_PUBLICATION': 'added a publication', 'UPDATE_PUBLICATION': 'updated a publication', 'DELETE_PUBLICATION': 'deleted a publication', 'CREATE_USER': 'created a user', 'UPDATE_USER': 'updated a user', 'DELETE_USER': 'deleted a user' };
+            return map[action] || action.toLowerCase().replace(/_/g, ' ');
+        }
+        function timeDiff(date) {
+            const diff = Math.floor((Date.now() - date) / 60000);
+            if (diff < 1) return 'Just now';
+            if (diff < 60) return `${diff} min ago`;
+            if (diff < 1440) return `${Math.floor(diff / 60)} hours ago`;
+            return `${Math.floor(diff / 1440)} days ago`;
+        }
+        function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+    <script src="js/config.js"></script>
     <script src="js/admin.js"></script>
 </body>
 
